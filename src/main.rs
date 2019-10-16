@@ -85,7 +85,9 @@ impl Config {
 
         for line in reader.lines() {
             let mut line = line.context(format!("Cannot parse script line: {}", line_num))?;
-
+            
+            // Artisan parser here, needs to be rewritten cleanly.
+        
             script_src.push(line.clone());
             let old_state = state.clone();
             state = match old_state {
