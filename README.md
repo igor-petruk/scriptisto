@@ -2,6 +2,35 @@
 
 **This is not an officially supported Google product**
 
+## Demo
+
+`script.c`:
+
+```c
+#!/usr/bin/env scriptisto
+
+#include <stdio.h>
+#include <glib.h>
+
+// scriptisto-begin
+// script_src: main.c
+// build_cmd: clang -O2 main.c `pkg-config --libs --cflags glib-2.0` -o ./app 
+// target_bin: @@@/app
+// scriptisto-end
+
+int main(int argc, char *argv[]) {
+  gchar* user = g_getenv("USER");
+  printf("Hello, C! Current user: %s\n", user);
+  return 0;
+}
+```
+
+```shell
+$ chmod +x ./script.c
+$ ./script.c
+Hello, C! Current user: username
+```
+
 ## Installation
 
 Install Rust, for example via https://rustup.rs/. Then
