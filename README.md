@@ -4,8 +4,6 @@
 
 ## Demo
 
-`script.c`:
-
 ```c
 #!/usr/bin/env scriptisto
 
