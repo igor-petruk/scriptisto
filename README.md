@@ -4,6 +4,7 @@
 ![Crates.io License](https://img.shields.io/crates/l/scriptisto)
 ![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/cargo/scriptisto)
 ![GitHub top language](https://img.shields.io/github/languages/top/igor-petruk/scriptisto)
+![Crates.ioi Downloads](https://img.shields.io/crates/d/scriptisto)
 
 **This is not an officially supported Google product**
 
@@ -15,7 +16,7 @@ Also useful for non-compiled languages like Typed Python, but type validation is
 
 ## Demo
 
-**Important:** The format of the comment is likely to change. See Issue #1.
+**Important:** The format of the comment is likely to change. See igor-petruk/scriptisto#1.
 
 ```c
 #!/usr/bin/env scriptisto
