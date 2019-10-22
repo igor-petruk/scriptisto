@@ -1,0 +1,13 @@
+pipeline:
+  build:
+    image: rust:latest
+    environment:
+      - CARGO_HOME=/var/cache/drone/cargo
+      - CARGO_TARGET_DIR=/var/cache/drone/cargo
+    commands:
+      - cargo build
+      - cargo build --release
+      - cargo test
+      - cargo test --release
+    cache:
+      - /var/cache/drone/cargo
