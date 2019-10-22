@@ -31,11 +31,18 @@ Hello, C! Current user: username
 
 ## Installation
 
-Install Rust, for example via https://rustup.rs/. Then
+Install Rust, for example via https://rustup.rs/. Then install from Crates.io:
 
 ```shell
+$ cargo install scriptisto
+```
+
+Or the latest from Github:
+
+```shell
+$ git clone https://github.com/igor-petruk/scriptisto.git
 $ cd scriptisto
-$ cargo install --force --path .
+$ cargo install --path .
 ```
 
 ## Creating scripts from templates
