@@ -1,5 +1,7 @@
 # Scriptisto
 
+[![Latest Version](https://img.shields.io/crates/v/scriptisto.svg)](https://crates.io/crates/scriptisto)
+
 **This is not an officially supported Google product**
 
 ## Demo
