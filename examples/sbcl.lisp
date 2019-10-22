@@ -1,4 +1,4 @@
-#!/bin/env scriptisto
+#!/usr/bin/env scriptisto
 ;; Copyright 2019 The Scriptisto Authors
 ;;
 ;; Licensed under the Apache License, Version 2.0 (the "License");
