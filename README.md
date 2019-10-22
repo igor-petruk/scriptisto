@@ -38,7 +38,7 @@ $ cd scriptisto
 $ cargo install --force --path .
 ```
 
-## Running
+## Creating scripts from templates
 
 Try one of the script templates from one of the language available. To see the
 list:
