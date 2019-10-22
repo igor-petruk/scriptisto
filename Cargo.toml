@@ -15,8 +15,16 @@
 [package]
 name = "scriptisto"
 version = "0.1.0"
-authors = ["Igor Petruk <igor.petrouk@gmail.com>"]
 edition = "2018"
+license = "Apache-2.0"
+description = "A language-agnostic \"shebang interpreter\" that enables you to write scripts in compiled languages."
+repository = "https://github.com/igor-petruk/scriptisto"
+readme = "README.md"
+categories = ["development-tools::build-utils", "command-line-utilities"]
+authors = [
+    "Google LLC",
+    "Igor Petruk",
+]
 
 [dependencies]
 dirs="*"
