@@ -7,7 +7,7 @@ pipeline:
     commands:
       - cargo build
       - cargo build --release
-      - cargo test
-      - cargo test --release
+      - cargo test --tests
+      - cargo test --tests --release
     cache:
       - /var/cache/drone/cargo
