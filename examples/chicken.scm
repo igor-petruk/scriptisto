@@ -15,9 +15,9 @@
 ; limitations under the License.
 
 ; scriptisto-begin
-; script_src: script.scm
-; build_cmd: csc -O2 script.scm
-; target_bin: @@@/script
+; script_src="script.scm"
+; build_cmd="csc -O2 script.scm"
+; target_bin="@@@/script"
 ; scriptisto-end
 
 (print "Hello, Scheme!")

@@ -15,19 +15,16 @@
  * limitations under the License.
  */
 
-
-#include <stdio.h>
 #include <glib.h>
+#include <stdio.h>
 
-/*
-    scriptisto-begin
-    script_src: main.c
-    build_cmd: clang -O2 main.c `pkg-config --libs --cflags glib-2.0` -o ./app 
-    target_bin: @@@/app
-    scriptisto-end
-*/
+// scriptisto-begin
+// script_src="main.c"
+// build_cmd="clang -O2 main.c `pkg-config --libs --cflags glib-2.0` -o ./app"
+// target_bin="@@@/app"
+// scriptisto-end
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   gchar* user = g_getenv("USER");
   printf("Hello, C! Current user: %s\n", user);
   return 0;

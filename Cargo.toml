@@ -32,6 +32,9 @@ exec = '0.3.1'
 failure = '0.1.6'
 include_dir = '0.2.1'
 log = '0.4.8'
+toml='*'
+serde='*'
+serde_derive='*'
 
 [dependencies.simple_logger]
 features = []

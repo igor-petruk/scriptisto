@@ -18,12 +18,13 @@ extern crate include_dir;
 use failure::{format_err, Error, ResultExt};
 use include_dir::Dir;
 use log::debug;
-use std::cmp::min;
-use std::collections::{BTreeSet, HashMap};
+use std::collections::BTreeSet;
 use std::fs::File;
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{exit, Command, Stdio};
+
+mod cfg;
 
 const EXAMPLES: Dir = include_dir!("./examples/");
 
@@ -52,126 +53,6 @@ fn build_cache_path(script_path: &Path) -> Result<PathBuf, Error> {
     user_cache.push("scriptisto/bin");
     user_cache.push(script_path_rel);
     Ok(user_cache)
-}
-
-#[derive(Debug)]
-struct Config {
-    build_cmd: String,
-    target_bin: String,
-    extra_files: HashMap<String, Vec<u8>>,
-}
-
-#[derive(Clone, Debug)]
-enum ParserState {
-    ScriptSource,
-    ConfigSource { prefix_len: usize },
-    InputFile { path: String, prefix_len: usize },
-}
-
-impl Config {
-    fn new(script_body: &[u8]) -> Result<Self, Error> {
-        let mut build_cmd: Option<String> = None;
-        let mut target_bin: Option<String> = None;
-        let mut script_src_path: Option<String> = None;
-        let mut replace_shebang_with = String::new();
-
-        let mut script_src = Vec::new();
-        let mut extra_files: HashMap<String, Vec<String>> = Default::default();
-        let reader = BufReader::new(script_body);
-
-        use ParserState::*;
-        let mut state = ParserState::ScriptSource;
-        let mut line_num = 0;
-
-        for line in reader.lines() {
-            let mut line = line.context(format!("Cannot parse script line: {}", line_num))?;
-            
-            // Artisan parser here, needs to be rewritten cleanly.
-        
-            script_src.push(line.clone());
-            let old_state = state.clone();
-            state = match old_state {
-                ScriptSource => {
-                    let sb_start = line.find("scriptisto-begin");
-                    if let Some(pos) = sb_start {
-                        ConfigSource { prefix_len: pos }
-                    } else {
-                        ScriptSource
-                    }
-                }
-                ConfigSource { prefix_len } => {
-                    line.drain(..min(prefix_len, line.len()));
-                    let split: Vec<&str> = line.splitn(2, ':').collect();
-                    let config_opt = split[0];
-                    let config_val = split.get(1);
-                    if config_opt.contains("scriptisto-end") {
-                        ScriptSource
-                    } else if let Some(val) = config_val {
-                        let val = val.trim().to_string();
-                        if config_opt.contains("file-begin") {
-                            InputFile {
-                                path: val,
-                                prefix_len,
-                            }
-                        } else {
-                            if config_opt == "build_cmd" {
-                                build_cmd = Some(val);
-                            } else if config_opt == "target_bin" {
-                                target_bin = Some(val);
-                            } else if config_opt == "script_src" {
-                                script_src_path = Some(val);
-                            } else if config_opt == "replace_shebang_with" {
-                                replace_shebang_with = val;
-                            } else if !config_opt.trim().is_empty() {
-                                return Err(format_err!(
-                                    "Unknown option: {}, line num: {}",
-                                    config_opt,
-                                    line_num
-                                ));
-                            }
-                            old_state
-                        }
-                    } else {
-                        old_state
-                    }
-                }
-                InputFile {
-                    ref path,
-                    prefix_len,
-                } => {
-                    line.drain(..min(prefix_len, line.len()));
-                    if line.contains("file-end") {
-                        ConfigSource { prefix_len }
-                    } else {
-                        let lines = extra_files.entry(path.clone()).or_default();
-                        lines.push(line.clone());
-                        old_state
-                    }
-                }
-            };
-            debug!("{}", line);
-            debug!("######## {:?}", state);
-            line_num += 1;
-        }
-
-        if !script_src.is_empty() {
-            script_src[0] = replace_shebang_with;
-        }
-
-        extra_files.insert(
-            script_src_path.ok_or_else(|| format_err!("Please specify script_src"))?,
-            script_src,
-        );
-        let extra_files = extra_files
-            .iter()
-            .map(|(k, v)| (k.clone(), v.join("\n").into_bytes()))
-            .collect();
-        Ok(Config {
-            build_cmd: build_cmd.ok_or_else(|| format_err!("Please specify build_cmd"))?,
-            target_bin: target_bin.ok_or_else(|| format_err!("Please specfy target_bin"))?,
-            extra_files,
-        })
-    }
 }
 
 fn write_bytes(cache_path: &Path, rel_path: &Path, data: &[u8]) -> Result<(), Error> {
@@ -208,7 +89,7 @@ fn default_main(mut args: Vec<String>) -> Result<(), Error> {
     ))?;
     debug!("Path: {:?}", script_path);
     debug!("Cache path: {:?}", script_cache_path);
-    let cfg = Config::new(&script_body)?;
+    let cfg = cfg::BuildSpec::new(&script_body)?;
 
     let mut metadata_path = script_cache_path.clone();
     metadata_path.push("scriptisto.metadata");
@@ -219,8 +100,12 @@ fn default_main(mut args: Vec<String>) -> Result<(), Error> {
     if already_compiled {
         debug!("Already compiled, skipping compilation");
     } else {
-        for (extra_file_path, data) in cfg.extra_files.iter() {
-            write_bytes(&script_cache_path, &PathBuf::from(extra_file_path), &data)?;
+        for file in cfg.file.iter() {
+            write_bytes(
+                &script_cache_path,
+                &PathBuf::from(&file.path),
+                &file.content.as_bytes(),
+            )?;
         }
 
         let out = Command::new("bash")
