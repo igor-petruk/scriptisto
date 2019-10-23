@@ -5,8 +5,10 @@ pipeline:
       - CARGO_HOME=/var/cache/drone/cargo
       - CARGO_TARGET_DIR=/var/cache/drone/cargo
     commands:
+      - rustup component add clippy
       - cargo build
       - cargo build --release
+      - cargo clippy
       - cargo test --tests
       - cargo test --tests --release
     cache:
