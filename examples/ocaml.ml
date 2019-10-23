@@ -16,16 +16,17 @@
 *)
 
 (*
-    scriptisto-begin
-    script_src: script.ml
-    build_cmd: dune build script.exe
-    target_bin: @@@/_build/default/script.exe
-    file-begin: dune
-    (executable
-     (name script)
-      (libraries lwt.unix))
-    file-end: dune
-    scriptisto-end
+  scriptisto-begin
+  script_src: script.ml
+  build_cmd: dune build script.exe
+  target_bin: "@@@/_build/default/script.exe"
+  files:
+   - path: dune
+     content: |
+      (executable
+       (name script)
+       (libraries lwt.unix))
+  scriptisto-end
 *)
 
 Lwt_main.run (Lwt_io.printf "Hello, OCaml!\n")

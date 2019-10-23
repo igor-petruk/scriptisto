@@ -13,22 +13,19 @@
 ;; See the License for the specific language governing permissions and
 ;; limitations under the License.
 
-
-
-;     scriptisto-begin
-;     script_src: script.lisp
-;     build_cmd: chmod +x build.lisp && ./build.lisp
-;     target_bin: @@@/script
-;
-;     file-begin: build.lisp
+; scriptisto-begin
+; script_src: script.lisp
+; build_cmd: chmod +x build.lisp && ./build.lisp
+; target_bin: "@@@/script"
+; files:
+;  - path: build.lisp
+;    content: |
 ;     #!/usr/bin/sbcl --script
 ;     (load "script.lisp")
 ;     (sb-ext:save-lisp-and-die "script"
-;                           :executable t
-;                           :toplevel 'main)
-;     file-end: build.lisp
-;
-;     scriptisto-end
+;                     :executable t
+;                     :toplevel 'main)
+; scriptisto-end
 
 (defun main ()
       (format t "Hello, Common Lisp!~%"))

@@ -15,14 +15,12 @@
 
 package main
 
-/*
-    scriptisto-begin
-    script_src: main.go
-    target_bin: @@@/script
-    build_cmd: go build -o script
-    replace_shebang_with: //
-    scriptisto-end
-*/
+// scriptisto-begin
+// script_src: main.go
+// target_bin: "@@@/script"
+// build_cmd: go build -o script
+// replace_shebang_with: //
+// scriptisto-end
 
 // Please run "go get" for this package.
 import "github.com/fatih/color"

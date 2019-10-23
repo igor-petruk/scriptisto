@@ -13,27 +13,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*
-    scriptisto-begin
-    script_src: src/main/java/script/Script.java
-    build_cmd: gradle build && tar xf ./build/distributions/java.java.tar --strip 1 -C .
-    target_bin: @@@/bin/java.java
-
-    file-begin: build.gradle
-    apply plugin: 'java'
-    apply plugin: 'application'
-    mainClassName = 'script.Script'
-    tasks.distZip.enabled = false
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-       compile 'ch.qos.logback:logback-classic:1.2.3'
-    }
-    file-end: build.gradle
-
-    scriptisto-end
-*/
+// scriptisto-begin
+// script_src: src/main/java/script/Script.java
+// build_cmd: gradle build && tar xf ./build/distributions/java.java.tar --strip 1 -C .
+// target_bin: "@@@/bin/java.java"
+//
+// files:
+//  - path: build.gradle
+//    content: |
+//      apply plugin: 'java'
+//      apply plugin: 'application'
+//      mainClassName = 'script.Script'
+//      tasks.distZip.enabled = false
+//      repositories {
+//        mavenCentral()
+//      }
+//      dependencies {
+//        compile 'ch.qos.logback:logback-classic:1.2.3'
+//      }
+// scriptisto-end
 
 package script;
 

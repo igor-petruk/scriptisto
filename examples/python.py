@@ -13,18 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 # scriptisto-begin
 # script_src: script.py
 # build_cmd: mypy script.py && python3 -m compileall .
 # target_bin: /usr/bin/python3 @@@/script.py
 # scriptisto-end
 
-def print_int(s: str):
+def print_str(s: str):
     print("Hello, %s!" % s)
 
 def main():
-  print_int("Python")
+  print_str("Python")
   
 if __name__== "__main__":
   main()

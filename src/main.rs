@@ -100,7 +100,7 @@ fn default_main(mut args: Vec<String>) -> Result<(), Error> {
     if already_compiled {
         debug!("Already compiled, skipping compilation");
     } else {
-        for file in cfg.file.iter() {
+        for file in cfg.files.iter() {
             write_bytes(
                 &script_cache_path,
                 &PathBuf::from(&file.path),

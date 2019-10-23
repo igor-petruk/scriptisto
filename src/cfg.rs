@@ -12,7 +12,7 @@ pub struct BuildSpec {
     #[serde(default)]
     pub replace_shebang_with: String,
     #[serde(default)]
-    pub file: Vec<File>,
+    pub files: Vec<File>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -64,15 +64,15 @@ impl BuildSpec {
             line_num += 1;
         }
 
-        let mut build_spec: BuildSpec = toml::from_str(&cfg_src.join("\n"))
-            .context(format!("Cannot parse config TOML: \n{:#?}", cfg_src))?;
+        let mut build_spec: BuildSpec = serde_yaml::from_str(&cfg_src.join("\n"))
+            .context(format!("Cannot parse config YAML: \n{:#?}", cfg_src))?;
 
         let replace_shebang_with = build_spec.replace_shebang_with.clone();
         if !script_src.is_empty() {
             script_src[0] = replace_shebang_with;
         }
 
-        build_spec.file.push(File {
+        build_spec.files.push(File {
             path: build_spec.script_src.clone(),
             content: script_src.join("\n"),
         });

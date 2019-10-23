@@ -14,27 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 # scriptisto-begin
 # script_src: lib/script.ex
 # build_cmd: MIX_ENV=prod mix escript.build
-# target_bin: @@@/script
-#
-# file-begin: mix.exs
-# defmodule Script.MixProject do
-#  use Mix.Project
-#
-#  def project do
-#    [
-#      app: :script,
-#      version: "0.1.0",
-#      elixir: "~> 1.8",
-#      escript: [main_module: Script.CLI],
-#    ]
-#  end
-# end
-# file-end: mix.exs
-#
+# target_bin: "@@@/script"
+# files:
+#  - path: mix.exs
+#    content: |
+#     defmodule Script.MixProject do
+#     use Mix.Project
+#     def project do
+#      [
+#        app: :script,
+#        version: "0.1.0",
+#        elixir: "~> 1.8",
+#        escript: [main_module: Script.CLI],
+#      ]
+#      end
+#     end
 # scriptisto-end
 
 defmodule Script.CLI do

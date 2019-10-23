@@ -16,13 +16,11 @@
  * limitations under the License.
  */
 
-/*
-  scriptisto-begin
-  script_src: script.ts
-  build_cmd: deno bundle script.ts
-  target_bin: deno --no-prompt @@@/script.bundle.js
-  scriptisto-end
-*/
+// scriptisto-begin
+// script_src="script.ts"
+// build_cmd="deno bundle script.ts"
+// target_bin="deno --no-prompt @@@/script.bundle.js"
+// scriptisto-end
 
 import { yellow, bold } from "https://deno.land/std/fmt/colors.ts";
 

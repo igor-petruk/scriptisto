@@ -18,9 +18,8 @@
 ! scriptisto-begin
 ! script_src: script.f
 ! build_cmd: gfortran -ffree-form -O2 script.f -o ./script
-! target_bin: @@@/script
+! target_bin: "@@@/script"
 ! scriptisto-end
-
 
 program script
    print '("Hello, Fortran!", I0)'
