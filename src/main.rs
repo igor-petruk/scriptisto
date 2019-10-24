@@ -136,26 +136,34 @@ fn default_main(mut args: Vec<String>) -> Result<(), Error> {
         .context("Cannot write metadata file")?;
     }
 
-    let mut bin_cmd = script_cache_path.clone();
-    bin_cmd.push(PathBuf::from(cfg.target_bin));
-    debug!("Bin cmd path: {:?}", bin_cmd);
-
-    let mut bin_cmd_segments: Vec<String> = bin_cmd
+    let mut full_target_bin = script_cache_path.clone();
+    full_target_bin.push(PathBuf::from(cfg.target_bin));
+    let full_target_bin = full_target_bin
+        .canonicalize()?
         .to_string_lossy()
-        .split_ascii_whitespace()
-        .map(|s| s.to_string())
-        .collect();
-    let binary = bin_cmd_segments
-        .drain(..1)
-        .next()
-        .ok_or_else(|| format_err!("Could not remove first segment from: {:?}", bin_cmd,))?
         .to_string();
-    args.drain(..2);
-    bin_cmd_segments.extend(args);
+    debug!("Full target_bin path: {:?}", full_target_bin);
 
-    let mut target_argv: Vec<String> = Vec::new();
-    target_argv.push(binary.clone());
-    target_argv.extend(bin_cmd_segments);
+    let (binary, mut target_argv) = match cfg.target_interpreter {
+        Some(ref target_interpreter) if !target_interpreter.is_empty() => {
+            let mut seq: Vec<String> = target_interpreter
+                .split_ascii_whitespace()
+                .map(|s| s.to_string())
+                .collect();
+            let binary = seq
+                .first()
+                .expect("first() should work as we checked the guard above")
+                .clone();
+            seq.drain(..1);
+            seq.push(full_target_bin);
+            (binary, seq)
+        }
+        _ => (full_target_bin, vec![]),
+    };
+
+    args.drain(..2);
+    target_argv.extend(args);
+    debug!("Running exec {:?}, Args: {:?}", binary, target_argv);
 
     let error = match exec::execvp(&binary, &target_argv) {
         exec::Error::Errno(e) => {

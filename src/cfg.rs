@@ -10,6 +10,7 @@ pub struct BuildSpec {
     pub build_cmd: String,
     #[serde(default = "default_target_bin")]
     pub target_bin: String,
+    pub target_interpreter: Option<String>,
     #[serde(default)]
     pub replace_shebang_with: String,
     #[serde(default)]
