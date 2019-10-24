@@ -7,8 +7,6 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/igor-petruk/scriptisto)
 ![Crates.ioi Downloads](https://img.shields.io/crates/d/scriptisto)
 
-**This is not an officially supported Google product**
-
 It is tool to enable writing one file scripts in languages that require compilation, dependencies fetching or preprocessing.
 
 It works as a "shebang" for those scripts, extracting build instructions from comments. If a script is changed, it rebuilds it and caches the result. If it was already built, it immediately delegates to a binary with only <1 ms overhead.
@@ -80,3 +78,7 @@ Hello, Rust!
 ## Contributing
 
 See [Contributing Guide](docs/contributing.md).
+
+## Disclaimer
+
+This is not an officially supported Google product.
