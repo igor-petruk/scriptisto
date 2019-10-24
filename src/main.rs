@@ -160,6 +160,7 @@ fn default_main(mut args: Vec<String>) -> Result<(), Error> {
         }
         _ => (full_target_bin, vec![]),
     };
+    target_argv.insert(0, binary.clone());
 
     args.drain(..2);
     target_argv.extend(args);
