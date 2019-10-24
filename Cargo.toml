@@ -14,7 +14,7 @@
 
 [package]
 name = "scriptisto"
-version = "0.2.0"
+version = "0.1.3-alpha.0"
 edition = "2018"
 license = "Apache-2.0"
 description = "A language-agnostic \"shebang interpreter\" that enables you to write scripts in compiled languages."
@@ -32,9 +32,9 @@ exec = '0.3.1'
 failure = '0.1.6'
 include_dir = '0.2.1'
 log = '0.4.8'
-serde='*'
-serde_derive='*'
-serde_yaml='*'
+serde='1.0.101'
+serde_derive='1.0.101'
+serde_yaml='0.8.11'
 
 [dependencies.simple_logger]
 features = []
