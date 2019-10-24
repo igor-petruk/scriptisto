@@ -15,8 +15,6 @@ Also useful for non-compiled languages like Typed Python, but type validation is
 
 ## Demo
 
-**Important:** The format of the comment is likely to change. See [Issue #1](https://github.com/igor-petruk/scriptisto/issues/1)
-
 ```c
 #!/usr/bin/env scriptisto
 
