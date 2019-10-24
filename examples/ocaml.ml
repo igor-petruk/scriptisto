@@ -19,7 +19,7 @@
   scriptisto-begin
   script_src: script.ml
   build_cmd: dune build script.exe
-  target_bin: "@@@/_build/default/script.exe"
+  target_bin: ./_build/default/script.exe
   files:
    - path: dune
      content: |

@@ -15,9 +15,8 @@
 
 
 -- scriptisto-begin
--- script_src: app.hs
--- build_cmd: ghc -O -o app app.hs && strip ./app
--- target_bin: "@@@/app"
+-- script_src: script.hs
+-- build_cmd: ghc -O -o script script.hs && strip ./script
 -- scriptisto-end
 
 main = putStrLn "Hello, Haskell!"

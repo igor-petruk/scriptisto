@@ -136,14 +136,10 @@ fn default_main(mut args: Vec<String>) -> Result<(), Error> {
         .context("Cannot write metadata file")?;
     }
 
-    let bin_cmd =
-        PathBuf::from(cfg.target_bin.replace(
-            "@@@",
-            script_cache_path.to_str().ok_or_else(|| {
-                format_err!("Cannot turn path to string: {:?}", script_cache_path)
-            })?,
-        ));
+    let mut bin_cmd = script_cache_path.clone();
+    bin_cmd.push(PathBuf::from(cfg.target_bin));
     debug!("Bin cmd path: {:?}", bin_cmd);
+
     let mut bin_cmd_segments: Vec<String> = bin_cmd
         .to_string_lossy()
         .split_ascii_whitespace()

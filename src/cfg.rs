@@ -8,11 +8,16 @@ use std::io::{BufRead, BufReader};
 pub struct BuildSpec {
     pub script_src: String,
     pub build_cmd: String,
+    #[serde(default = "default_target_bin")]
     pub target_bin: String,
     #[serde(default)]
     pub replace_shebang_with: String,
     #[serde(default)]
     pub files: Vec<File>,
+}
+
+fn default_target_bin() -> String {
+    "./script".into()
 }
 
 #[derive(Deserialize, Debug)]

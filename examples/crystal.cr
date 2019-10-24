@@ -17,7 +17,7 @@
 # scriptisto-begin
 # script_src: script.cr
 # build_cmd: shards build --production && strip ./bin/script
-# target_bin: "@@@/bin/script"
+# target_bin: ./bin/script
 # files:
 #  - path: shard.yml
 #    content: |

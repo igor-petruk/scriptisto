@@ -16,7 +16,7 @@
 // scriptisto-begin
 // script_src: src/main.rs
 // build_cmd: cargo build --release && strip ./target/release/script
-// target_bin: "@@@/target/release/script"
+// target_bin: ./target/release/script
 // files:
 //  - path: Cargo.toml
 //    content: |

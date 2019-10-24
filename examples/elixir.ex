@@ -17,7 +17,6 @@
 # scriptisto-begin
 # script_src: lib/script.ex
 # build_cmd: MIX_ENV=prod mix escript.build
-# target_bin: "@@@/script"
 # files:
 #  - path: mix.exs
 #    content: |

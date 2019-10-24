@@ -16,7 +16,7 @@
 // scriptisto-begin
 // script_src: src/main/java/script/Script.java
 // build_cmd: gradle build && tar xf ./build/distributions/java.java.tar --strip 1 -C .
-// target_bin: "@@@/bin/java.java"
+// target_bin: ./bin/java.java
 //
 // files:
 //  - path: build.gradle

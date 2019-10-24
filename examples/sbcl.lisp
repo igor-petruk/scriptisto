@@ -16,7 +16,6 @@
 ; scriptisto-begin
 ; script_src: script.lisp
 ; build_cmd: chmod +x build.lisp && ./build.lisp
-; target_bin: "@@@/script"
 ; files:
 ;  - path: build.lisp
 ;    content: |
