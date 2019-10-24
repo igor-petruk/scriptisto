@@ -1,4 +1,4 @@
-#!/usr/bin/env scriptisto
+#!/bin/env scriptisto
 
 # Copyright 2019 The Scriptisto Authors
 #
@@ -15,17 +15,20 @@
 # limitations under the License.
 
 # scriptisto-begin
-# script_src: script.py
-# build_cmd: mypy script.py && python3 -m compileall .
-# target_interpreter: /usr/bin/env python3
-# target_bin: ./script.py
+# script_src: internal.sh
+# build_cmd: docker build -t docker-script . && chmod +x ./external.sh
+# target_bin: ./external.sh
+# files: 
+#  - path: external.sh
+#    content: |
+#     #!/bin/bash
+#     docker run -i --rm docker-script
+#  - path: Dockerfile
+#    content: |
+#     FROM alpine
+#     COPY internal.sh /internal.sh
+#     CMD sh /internal.sh
 # scriptisto-end
 
-def print_str(s: str):
-    print("Hello, %s!" % s)
-
-def main():
-  print_str("Python")
-  
-if __name__== "__main__":
-  main()
+echo -n "Hello, Docker! Alpine Linux version: " 
+cat /etc/alpine-release
