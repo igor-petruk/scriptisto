@@ -55,27 +55,9 @@ $ cd scriptisto
 $ cargo install --path .
 ```
 
-## Creating scripts from templates
+## Documentation
 
-Try one of the script templates from one of the language available. To see the
-list:
-
-```shell
-$ scriptisto -g
-```
-
-Then generate your basic script:
-
-```shell
-$ scriptisto -g rust | tee ./rust-script
-$ chmod +x ./rust-script
-$ ./rust-script
-Hello, Rust!
-```
-
-## Contributing
-
-See [Contributing Guide](docs/contributing.md).
+Proceed to our [Wiki](https://github.com/igor-petruk/scriptisto/wiki).
 
 ## Disclaimer
 
