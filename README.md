@@ -43,23 +43,9 @@ Hello, C! Current user: username
 
 ## Installation
 
-Download a statically linked binary from
-[Releases](https://github.com/igor-petruk/scriptisto/releases). It was securely
-built on the public [Drone CI Server](https://cloud.drone.io/igor-petruk/scriptisto).
+Scriptisto is available as a prebuilt statically-linked [binary](https://github.com/igor-petruk/scriptisto/releases) or at [Crates.io](https://crates.io/crates/scriptisto). 
 
-To install from from Crates.io:
-
-```shell
-$ cargo install scriptisto
-```
-
-Or the latest from Github:
-
-```shell
-$ git clone https://github.com/igor-petruk/scriptisto.git
-$ cd scriptisto
-$ cargo install --path .
-```
+Please proceed to [Installation](https://github.com/igor-petruk/scriptisto/wiki/Installation) for instructions.
 
 ## Documentation
 
