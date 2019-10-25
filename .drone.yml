@@ -1,7 +1,4 @@
-kind: pipeline
-name: default
-
-steps:
+pipeline:
   build:
     image: rust:latest
     environment:
@@ -24,5 +21,4 @@ steps:
     - sha256
     secrets: [github_token]
     when:
-      branch: master
       event: tag
