@@ -20,25 +20,13 @@ use include_dir::Dir;
 use log::debug;
 use std::collections::BTreeSet;
 use std::fs::File;
-use std::io::{Read, Write};
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{exit, Command, Stdio};
 
 mod cfg;
 
 const EXAMPLES: Dir = include_dir!("./examples/");
-
-fn file_bytes(path: &Path) -> Result<Vec<u8>, Error> {
-    let mut file = File::open(path).context(format!("Cannot open file: {:?}", path))?;
-    let initial_cap = file
-        .metadata()
-        .map(|m| m.len() as usize + 1)
-        .unwrap_or(4096);
-    let mut vec = Vec::with_capacity(initial_cap);
-    file.read_to_end(&mut vec)
-        .context(format!("Cannot read file: {:?}", path))?;
-    Ok(vec)
-}
 
 fn build_cache_path(script_path: &Path) -> Result<PathBuf, Error> {
     let script_path = script_path
@@ -82,7 +70,7 @@ fn default_main(mut args: Vec<String>) -> Result<(), Error> {
         .get(1)
         .ok_or_else(|| format_err!("Please specify script path as first argument"))?;
     let script_path = Path::new(script_path_str);
-    let script_body = file_bytes(&script_path).context("Cannot read script file")?;
+    let script_body = std::fs::read(&script_path).context("Cannot read script file")?;
     let script_cache_path = build_cache_path(script_path).context(format!(
         "Cannot build cache path for script: {:?}",
         script_path
