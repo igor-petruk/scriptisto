@@ -13,3 +13,13 @@ pipeline:
       - cargo test --tests --release
     cache:
       - /var/cache/drone/cargo
+  release:
+    image: plugins/github-release
+    files:
+    - target/release/scriptisto
+    checksum:
+    - sha256
+    secrets: [github_token]
+    when:
+      branch: master
+      event: tag
