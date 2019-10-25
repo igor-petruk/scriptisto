@@ -41,7 +41,11 @@ Hello, C! Current user: username
 
 ## Installation
 
-Install Rust, for example via https://rustup.rs/. Then install from Crates.io:
+Download a statically linked binary from
+[Releases](https://github.com/igor-petruk/scriptisto/releases). It was securely
+built on the public [Drone CI Server](https://cloud.drone.io/igor-petruk/scriptisto).
+
+To install from from Crates.io:
 
 ```shell
 $ cargo install scriptisto
