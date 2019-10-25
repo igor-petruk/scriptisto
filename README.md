@@ -5,8 +5,9 @@
 ![Crates.io License](https://img.shields.io/crates/l/scriptisto)
 ![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/cargo/scriptisto)
 ![GitHub top language](https://img.shields.io/github/languages/top/igor-petruk/scriptisto)
-![Crates.io](https://img.shields.io/crates/d/scriptisto?label=Crates.io%20downloads)
-![GitHub All Releases](https://img.shields.io/github/downloads/igor-petruk/scriptisto/total?logo=Github)
+
+![Crates.io](https://img.shields.io/crates/d/scriptisto?label=Cargo.io%20downloads)
+![GitHub All Releases](https://img.shields.io/github/downloads/igor-petruk/scriptisto/total?logo=Github&label=Github%20Release%20downloads)
 
 It is tool to enable writing one file scripts in languages that require compilation, dependencies fetching or preprocessing.
 
