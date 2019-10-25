@@ -13,6 +13,8 @@ steps:
       - cargo build --release
       - cargo clippy --release
       - cargo test --tests --release
+      - strip ./target/release/scriptisto
+      - bzip2 ./target/release/scriptisto
       - pwd
       - ls -lah ./target/release
     volumes:
@@ -23,9 +25,8 @@ steps:
     settings:
       api_key:
         from_secret: github_token
-      draft: true
       files:
-        - target/release/scriptisto
+        - target/release/scriptisto.bz2
       checksum:
         - sha256
     when:
