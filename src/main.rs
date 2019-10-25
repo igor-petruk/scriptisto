@@ -108,7 +108,7 @@ fn default_main(mut args: Vec<String>) -> Result<(), Error> {
             )?;
         }
 
-        let out = Command::new("bash")
+        let out = Command::new("/bin/sh")
             .arg("-c")
             .arg(cfg.build_cmd.clone())
             .stdout(Stdio::piped())
