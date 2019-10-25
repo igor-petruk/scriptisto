@@ -14,7 +14,7 @@ steps:
       - cargo clippy --release
       - cargo test --tests --release
       - strip ./target/release/scriptisto
-      - bzip2 ./target/release/scriptisto
+      - bzip2 -f ./target/release/scriptisto
       - pwd
       - ls -lah ./target/release
     volumes:
