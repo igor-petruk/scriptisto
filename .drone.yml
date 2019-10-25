@@ -1,5 +1,10 @@
-pipeline:
-  build:
+---
+kind: pipeline
+type: docker
+name: default
+
+steps:
+  - name: build
     image: rust:latest
     environment:
       - CARGO_HOME=/var/cache/drone/cargo
@@ -11,14 +16,17 @@ pipeline:
       - cargo clippy
       - cargo test --tests
       - cargo test --tests --release
-    cache:
-      - /var/cache/drone/cargo
-  release:
+    volumes:
+      - name: cache
+        path: /var/cache/drone/cargo
+  - name: release
     image: plugins/github-release
-    files:
-    - target/release/scriptisto
-    checksum:
-    - sha256
-    secrets: [github_token]
+    settings:
+      api_key:
+        from_secret: github_token
+      files:
+        - target/release/scriptisto
+      checksum:
+        - sha256
     when:
       event: tag
