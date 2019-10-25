@@ -1,4 +1,7 @@
-pipeline:
+kind: pipeline
+name: default
+
+steps:
   build:
     image: rust:latest
     environment:
