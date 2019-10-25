@@ -16,7 +16,7 @@ steps:
       - cargo test --tests
       - cargo test --tests --release
       - pwd
-      - ls -lahR
+      - ls -lah ./target/release
     volumes:
       - name: cache
         path: /var/cache/drone/cargo
