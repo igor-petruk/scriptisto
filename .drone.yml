@@ -8,7 +8,6 @@ steps:
     image: rust:latest
     environment:
       CARGO_HOME: /var/cache/drone/cargo
-      CARGO_TARGET_DIR: /var/cache/drone/cargo
     commands:
       - rustup component add clippy
       - cargo build
@@ -24,6 +23,7 @@ steps:
     settings:
       api_key:
         from_secret: github_token
+      draft: true
       files:
         - target/release/scriptisto
       checksum:
