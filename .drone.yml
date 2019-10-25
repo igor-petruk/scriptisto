@@ -20,13 +20,32 @@ steps:
     volumes:
       - name: cache
         path: /var/cache/drone/cargo
+  - name: build-release
+    image: rust:latest
+    environment:
+      CARGO_HOME: /var/cache/drone/cargo
+    commands:
+      - rustup target add x86_64-unknown-linux-musl
+      - apt-get update
+      - apt-get install -y musl-tools
+      - cargo build --release --target=x86_64-unknown-linux-musl
+      - cargo test --release --target=x86_64-unknown-linux-musl
+      - strip ./target/x86_64-unknown-linux-musl/release/scriptisto
+      - bzip2 -f ./target/x86_64-unknown-linux-musl/release/scriptisto
+      - pwd
+      - ls -lah ./target/x86_64-unknown-linux-musl/release
+    volumes:
+      - name: cache
+        path: /var/cache/drone/cargo
+    when:
+      event: tag
   - name: release
     image: plugins/github-release
     settings:
       api_key:
         from_secret: github_token
       files:
-        - target/release/scriptisto.bz2
+        - target/x86_64-unknown-linux-musl/release/scriptisto.bz2
       checksum:
         - sha256
     when:
