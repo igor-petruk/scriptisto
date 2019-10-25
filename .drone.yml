@@ -10,10 +10,8 @@ steps:
       CARGO_HOME: /var/cache/drone/cargo
     commands:
       - rustup component add clippy
-      - cargo build
       - cargo build --release
-      - cargo clippy
-      - cargo test --tests
+      - cargo clippy --release
       - cargo test --tests --release
       - pwd
       - ls -lah ./target/release
