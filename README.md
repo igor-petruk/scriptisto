@@ -13,7 +13,7 @@ It is tool to enable writing one file scripts in languages that require compilat
 
 It works as a "shebang" for those scripts, extracting build instructions from comments. If a script is changed, it rebuilds it and caches the result. If it was already built, it immediately delegates to a binary with only <1 ms overhead.
 
-Advantages ahd use-cases are listed in [Wiki](https://github.com/igor-petruk/scriptisto/wiki#advantages).
+Advantages and use-cases are listed in [Wiki](https://github.com/igor-petruk/scriptisto/wiki#advantages).
 
 ## Demo
 
