@@ -13,7 +13,7 @@ It is tool to enable writing one file scripts in languages that require compilat
 
 It works as a "shebang" for those scripts, extracting build instructions from comments. If a script is changed, it rebuilds it and caches the result. If it was already built, it immediately delegates to a binary with only <1 ms overhead.
 
-Advantages and use-cases are listed in [Wiki](https://github.com/igor-petruk/scriptisto/wiki#advantages).
+Advantages and use-cases are listed in the [Wiki](https://github.com/igor-petruk/scriptisto/wiki#advantages).
 
 ## Demo
 
@@ -45,7 +45,7 @@ Hello, C! Current user: username
 
 Scriptisto is available as a prebuilt statically-linked standalone binary or distrubutions packages at [Releases](https://github.com/igor-petruk/scriptisto/releases) or at [Crates.io](https://crates.io/crates/scriptisto). 
 
-Please proceed to [Installation](https://github.com/igor-petruk/scriptisto/wiki/Installation) for instructions.
+Please proceed to the [Installation](https://github.com/igor-petruk/scriptisto/wiki/Installation) for instructions.
 
 ## Documentation
 
