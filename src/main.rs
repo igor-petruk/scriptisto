@@ -25,6 +25,7 @@ use std::path::{Path, PathBuf};
 use std::process::{exit, Command, Stdio};
 
 mod cfg;
+mod opt;
 
 const EXAMPLES: Dir = include_dir!("./examples/");
 
@@ -65,11 +66,8 @@ fn file_modified(p: &Path) -> Result<std::time::SystemTime, std::io::Error> {
     Ok(modified)
 }
 
-fn default_main(mut args: Vec<String>) -> Result<(), Error> {
-    let script_path_str = args
-        .get(1)
-        .ok_or_else(|| format_err!("Please specify script path as first argument"))?;
-    let script_path = Path::new(script_path_str);
+fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
+    let script_path = Path::new(script_path);
     let script_body = std::fs::read(&script_path).context("Cannot read script file")?;
     let script_cache_path = build_cache_path(script_path).context(format!(
         "Cannot build cache path for script: {:?}",
@@ -149,9 +147,8 @@ fn default_main(mut args: Vec<String>) -> Result<(), Error> {
         _ => (full_target_bin, vec![]),
     };
     target_argv.insert(0, binary.clone());
-
-    args.drain(..2);
-    target_argv.extend(args);
+    // args.drain(..2);
+    target_argv.extend_from_slice(args);
     debug!("Running exec {:?}, Args: {:?}", binary, target_argv);
 
     let error = match exec::execvp(&binary, &target_argv) {
@@ -163,8 +160,7 @@ fn default_main(mut args: Vec<String>) -> Result<(), Error> {
     Err(error)
 }
 
-fn gen_main(args: Vec<String>) -> Result<(), Error> {
-    let lang = args.get(2).map(|s| s.to_string()).unwrap_or_default();
+fn gen_main(lang: Option<String>) -> Result<(), Error> {
     let mut langs = BTreeSet::new();
     for file in EXAMPLES.files() {
         let path = PathBuf::from(file.path());
@@ -172,7 +168,7 @@ fn gen_main(args: Vec<String>) -> Result<(), Error> {
             .file_stem()
             .ok_or_else(|| format_err!("Cannot strip extension from {:?}", path))?;
         let current_lang = file_stem.to_string_lossy().into_owned();
-        if lang == current_lang {
+        if lang == Some(current_lang.clone()) {
             print!(
                 "{}",
                 file.contents_utf8()
@@ -184,34 +180,39 @@ fn gen_main(args: Vec<String>) -> Result<(), Error> {
     }
     // Not found
     let langs: Vec<_> = langs.iter().collect();
-    eprintln!("Usage: -g <lang>. Available:\n{:#?}", langs);
+    eprintln!(
+        "Usage: scriptisto new <lang> | tee ./new-script\nAvailable languages: {:#?}",
+        langs
+    );
     Ok(())
 }
 
 fn main_err() -> Result<(), Error> {
-    #[cfg(debug_assertions)]
-    {
-        simple_logger::init_with_level(log::Level::Debug).context("Cannot init simple logger")?;
-    }
-    #[cfg(not(debug_assertions))]
-    {
-        simple_logger::init_with_level(log::Level::Info).context("Cannot init simple logger")?;
-    }
-
     let args: Vec<String> = std::env::args().collect();
-    debug!("Args: {:?}", args);
-    let first_arg = args
-        .get(1)
-        .ok_or_else(|| format_err!("Please specify script path as first argument or '-g'"))?;
+    let opts = opt::from_args(&args);
+    debug!("Parsed options: {:?}", opts);
 
-    if first_arg == "-g" {
-        gen_main(args)
-    } else {
-        default_main(args)
+    match opts.cmd {
+        None => {
+            let script_src = opts.script_src.ok_or_else(|| {
+                format_err!("PROBABLY A BUG: script_src must be non-empty if no subcommand found.")
+            })?;
+            default_main(&script_src, &opts.args)
+        }
+        Some(opt::Command::New { lang }) => gen_main(lang),
     }
 }
 
 fn main() {
+    #[cfg(debug_assertions)]
+    {
+        simple_logger::init_with_level(log::Level::Debug).expect("Cannot init simple logger");
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        simple_logger::init_with_level(log::Level::Info).expect("Cannot init simple logger");
+    }
+
     if let Err(e) = main_err() {
         eprintln!("Error: {:?}", e);
         exit(1);
