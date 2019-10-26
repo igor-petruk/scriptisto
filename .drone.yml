@@ -33,8 +33,11 @@ steps:
       - strip ./target/x86_64-unknown-linux-musl/release/scriptisto
       - bzip2 -f ./target/x86_64-unknown-linux-musl/release/scriptisto
       - sha256sum ./target/x86_64-unknown-linux-musl/release/scriptisto.bz2
-      - pwd
       - ls -lah ./target/x86_64-unknown-linux-musl/release
+      - cargo install cargo-deb
+      - cargo deb --separate-debug-symbols --target x86_64-unknown-linux-musl
+      - sha256sum ./target/x86_64-unknown-linux-musl/debian/*.deb
+      - ls -lah ./target/x86_64-unknown-linux-musl/debian
     volumes:
       - name: cache
         path: /var/cache/drone/cargo
@@ -47,6 +50,7 @@ steps:
         from_secret: github_token
       files:
         - target/x86_64-unknown-linux-musl/release/scriptisto.bz2
+        - target/x86_64-unknown-linux-musl/release/*.deb
       checksum:
         - sha256
     when:
