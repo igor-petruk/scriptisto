@@ -43,7 +43,7 @@ Hello, C! Current user: username
 
 ## Installation
 
-Scriptisto is available as a prebuilt statically-linked [binary](https://github.com/igor-petruk/scriptisto/releases) or at [Crates.io](https://crates.io/crates/scriptisto). 
+Scriptisto is available as a prebuilt statically-linked standalone binary or distrubutions packages at [Releases](https://github.com/igor-petruk/scriptisto/releases) or at [Crates.io](https://crates.io/crates/scriptisto). 
 
 Please proceed to [Installation](https://github.com/igor-petruk/scriptisto/wiki/Installation) for instructions.
 
