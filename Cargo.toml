@@ -40,3 +40,9 @@ serde_yaml='0.8.11'
 default-features = false
 version = '1.3.0'
 
+[package.metadata.rpm.cargo]
+target = "x86_64-unknown-linux-musl"
+buildflags = ["--release","--target=x86_64-unknown-linux-musl"]
+
+[package.metadata.rpm.targets]
+scriptisto = { path = "/usr/bin/scriptisto" }

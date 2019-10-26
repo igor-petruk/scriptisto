@@ -27,13 +27,17 @@ steps:
     commands:
       - rustup target add x86_64-unknown-linux-musl
       - apt-get update
-      - apt-get install -y musl-tools
+      - apt-get install -y musl-tools rpm
       - cargo build --release --target=x86_64-unknown-linux-musl
       - cargo test --tests --release --target=x86_64-unknown-linux-musl
       - strip ./target/x86_64-unknown-linux-musl/release/scriptisto
       - bzip2 -f ./target/x86_64-unknown-linux-musl/release/scriptisto
       - sha256sum ./target/x86_64-unknown-linux-musl/release/scriptisto.bz2
       - ls -lah ./target/x86_64-unknown-linux-musl/release
+      - cargo install cargo-rpm --target x86_64-unknown-linux-musl
+      - cargo rpm build
+      - sha256sum ./target/x86_64-unknown-linux-musl/release/rpmbuild/rpms/x86_64/*.rpm
+      - ls -lah ./target/x86_64-unknown-linux-musl/release/rpmbuild/rpms/x86_64/*.rpm
       - cargo install cargo-deb --target x86_64-unknown-linux-musl
       - cargo deb --separate-debug-symbols --target x86_64-unknown-linux-musl
       - sha256sum ./target/x86_64-unknown-linux-musl/debian/*.deb
@@ -51,6 +55,7 @@ steps:
       files:
         - target/x86_64-unknown-linux-musl/release/scriptisto.bz2
         - target/x86_64-unknown-linux-musl/debian/*.deb
+        - target/x86_64-unknown-linux-musl/release/rpmbuild/rpms/x86_64/*.rpm
       checksum:
         - sha256
     when:
