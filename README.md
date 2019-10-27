@@ -11,7 +11,7 @@
 
 It is tool to enable writing one file scripts in languages that require compilation, dependencies fetching or preprocessing.
 
-It works as a "shebang" for those scripts, extracting build instructions from comments. If a script is changed, it rebuilds it and caches the result. If it was already built, it immediately delegates to a binary with only <1 ms overhead.
+It works as a "shebang" for those scripts, extracting build instructions from comments. If a script is changed, scriptisto rebuilds it and caches the result. If a script was already built, scriptisto immediately delegates to a binary with only <1 ms overhead.
 
 Advantages and use-cases are listed in the [Wiki](https://github.com/igor-petruk/scriptisto/wiki#advantages).
 
