@@ -66,6 +66,111 @@ fn file_modified(p: &Path) -> Result<std::time::SystemTime, std::io::Error> {
     Ok(modified)
 }
 
+fn run_command(current_directory: &Path, mut cmd: Command) -> Result<std::process::Output, Error> {
+    cmd.stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .current_dir(current_directory);
+
+    debug!("Running command: {:?}", cmd);
+
+    let out = cmd.output().context(format!("Cannot run: {:?}", cmd))?;
+
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    debug!(
+        "Command result: {:?}\nstderr:\n{}\nstdout:\n{}",
+        out.status.code(),
+        stderr,
+        stdout
+    );
+
+    if !out.status.success() {
+        eprintln!("{}", stderr);
+        eprintln!("{}", stdout);
+        let error = match out.status.code() {
+            Some(code) => format_err!("Command {:?} failed. Exit code: {}.", cmd, code,),
+            None => format_err!("Child build process terminated by signal"),
+        };
+        return Err(error);
+    }
+
+    Ok(out)
+}
+
+fn run_build_command(cfg: &cfg::BuildSpec, script_cache_path: &Path) -> Result<(), Error> {
+    match &cfg.docker_build {
+        // TODO: Do better validation for empty dockerfile, but not-empty docker_build.
+        Some(docker_build) if docker_build.dockerfile.is_some() => {
+            // Write Dockerfile.
+            let tmp_dockerfile_name = "Dockerfile.scriptisto";
+            write_bytes(
+                &script_cache_path,
+                &PathBuf::from(&tmp_dockerfile_name),
+                docker_build.dockerfile.clone().unwrap().as_bytes(),
+            )?;
+
+            // Build temporary image.
+            let tmp_docker_image = format!(
+                "scriptisto-{}-{:x}",
+                script_cache_path
+                    .file_name()
+                    .ok_or_else(|| format_err!(
+                        "BUG: invalid script_cache_path={:?}",
+                        script_cache_path
+                    ))?
+                    .to_string_lossy(),
+                md5::compute(script_cache_path.to_string_lossy().as_bytes())
+            )
+            .to_string();
+
+            let mut build_im_cmd = Command::new("docker");
+            build_im_cmd
+                .arg("build")
+                .arg("-t")
+                .arg(&tmp_docker_image)
+                .arg("--label")
+                .arg(format!(
+                    "scriptisto-cache-path={}",
+                    script_cache_path.to_string_lossy()
+                ))
+                .arg("-f")
+                .arg(&tmp_dockerfile_name)
+                .arg(".");
+
+            run_command(&script_cache_path, build_im_cmd)?;
+
+            // Build binary in Docker.
+            let mut cmd = Command::new("docker");
+            cmd.arg("run").arg("-t").arg("--rm");
+
+            if let Some(src_mount_dir) = &docker_build.src_mount_dir {
+                cmd.arg("-v").arg(format!(
+                    "{}:{}",
+                    script_cache_path.to_string_lossy(),
+                    src_mount_dir
+                ));
+            }
+
+            cmd.args(docker_build.extra_args.iter())
+                .arg(tmp_docker_image)
+                .arg("sh")
+                .arg("-c")
+                .arg(cfg.build_cmd.clone());
+
+            run_command(&script_cache_path, cmd)?;
+        }
+
+        _ => {
+            let mut cmd = Command::new("/bin/sh");
+            cmd.arg("-c").arg(cfg.build_cmd.clone());
+
+            run_command(&script_cache_path, cmd)?;
+        }
+    };
+
+    Ok(())
+}
+
 fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
     let script_path = Path::new(script_path);
     let script_body = std::fs::read(&script_path).context("Cannot read script file")?;
@@ -94,26 +199,8 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
             )?;
         }
 
-        let out = Command::new("/bin/sh")
-            .arg("-c")
-            .arg(cfg.build_cmd.clone())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .current_dir(&script_cache_path)
-            .output()
-            .context(format!("Could not run build command: {}", cfg.build_cmd))?;
+        run_build_command(&cfg, &script_cache_path)?;
 
-        if !out.status.success() {
-            let stderr = String::from_utf8_lossy(&out.stderr);
-            let stdout = String::from_utf8_lossy(&out.stdout);
-            eprintln!("{}", stderr);
-            eprintln!("{}", stdout);
-            let error = match out.status.code() {
-                Some(code) => format_err!("Build failed. Exit code: {}.", code,),
-                None => format_err!("Child build process terminated by signal"),
-            };
-            return Err(error);
-        }
         write_bytes(
             &script_cache_path,
             &PathBuf::from("scriptisto.metadata"),
