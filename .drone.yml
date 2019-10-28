@@ -11,7 +11,7 @@ steps:
     commands:
       - rustup component add clippy
       - cargo build --release
-      - cargo clippy --release
+      - cargo clippy --release -- -D warnings
       - cargo test --tests --release
       - strip ./target/release/scriptisto
       - bzip2 -f ./target/release/scriptisto

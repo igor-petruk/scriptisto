@@ -58,7 +58,7 @@ pub fn from_args(args: &[String]) -> Opt {
             display_help();
             unreachable!();
         }
-        Some(ref script_src) if script_src.starts_with(".") || script_src.starts_with("/") => {
+        Some(ref script_src) if script_src.starts_with('.') || script_src.starts_with('/') => {
             // Do not use structopt, because it will try to recognize subcommands in all args.
             let extra_args: Vec<_> = args_iter.cloned().collect();
             Opt {
