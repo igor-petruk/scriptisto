@@ -13,6 +13,8 @@ It is tool to enable writing one file scripts in languages that require compilat
 
 It works as a "shebang" for those scripts, extracting build instructions from comments. If a script is changed, scriptisto rebuilds it and caches the result. If a script was already built, scriptisto immediately delegates to a binary with only <1 ms overhead.
 
+Builds in Docker are [available](https://github.com/igor-petruk/scriptisto/wiki/Writing-scripts#builds-in-docker). 
+
 Advantages and use-cases are listed in the [Wiki](https://github.com/igor-petruk/scriptisto/wiki#advantages).
 
 ## Demo
