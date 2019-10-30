@@ -1,4 +1,4 @@
-#!/bin/env scriptisto
+#!/usr/bin/env scriptisto
 
 # scriptisto-begin
 # script_src: internal.sh
