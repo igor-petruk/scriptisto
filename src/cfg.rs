@@ -22,6 +22,7 @@ use std::io::{BufRead, BufReader};
 pub struct BuildSpec {
     pub script_src: String,
     pub build_cmd: String,
+    pub build_once_cmd: Option<String>,
     #[serde(default = "default_target_bin")]
     pub target_bin: String,
     pub target_interpreter: Option<String>,

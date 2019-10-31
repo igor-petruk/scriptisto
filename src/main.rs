@@ -97,7 +97,19 @@ fn run_command(current_directory: &Path, mut cmd: Command) -> Result<std::proces
     Ok(out)
 }
 
-fn run_build_command(cfg: &cfg::BuildSpec, script_cache_path: &Path) -> Result<(), Error> {
+fn run_build_command(
+    cfg: &cfg::BuildSpec,
+    script_cache_path: &Path,
+    first_run: bool,
+) -> Result<(), Error> {
+    if first_run {
+        if let Some(build_once_cmd) = &cfg.build_once_cmd {
+            let mut cmd = Command::new("/bin/sh");
+            cmd.arg("-c").arg(build_once_cmd);
+            run_command(&script_cache_path, cmd)?;
+        }
+    }
+
     match &cfg.docker_build {
         // TODO: Do better validation for empty dockerfile, but not-empty docker_build.
         Some(docker_build) if docker_build.dockerfile.is_some() => {
@@ -199,7 +211,7 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
             )?;
         }
 
-        run_build_command(&cfg, &script_cache_path)?;
+        run_build_command(&cfg, &script_cache_path, metadata_modified.is_none())?;
 
         write_bytes(
             &script_cache_path,
