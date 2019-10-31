@@ -23,6 +23,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{exit, Command, Stdio};
+use std::str::FromStr;
 
 mod cfg;
 mod opt;
@@ -101,8 +102,9 @@ fn run_build_command(
     cfg: &cfg::BuildSpec,
     script_cache_path: &Path,
     first_run: bool,
+    build_mode: opt::BuildMode,
 ) -> Result<(), Error> {
-    if first_run {
+    if first_run || build_mode == opt::BuildMode::Full {
         if let Some(build_once_cmd) = &cfg.build_once_cmd {
             let mut cmd = Command::new("/bin/sh");
             cmd.arg("-c").arg(build_once_cmd);
@@ -136,8 +138,13 @@ fn run_build_command(
             .to_string();
 
             let mut build_im_cmd = Command::new("docker");
+            build_im_cmd.arg("build");
+
+            if build_mode == opt::BuildMode::Full {
+                build_im_cmd.arg("--no-cache");
+            }
+
             build_im_cmd
-                .arg("build")
                 .arg("-t")
                 .arg(&tmp_docker_image)
                 .arg("--label")
@@ -194,13 +201,18 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
     debug!("Cache path: {:?}", script_cache_path);
     let cfg = cfg::BuildSpec::new(&script_body)?;
 
+    let build_mode_env = std::env::var_os("SCRIPTISTO_BUILD").unwrap_or_default();
+    let build_mode = opt::BuildMode::from_str(&build_mode_env.to_string_lossy())?;
+
     let mut metadata_path = script_cache_path.clone();
     metadata_path.push("scriptisto.metadata");
     let metadata_modified = file_modified(&metadata_path).ok();
     let script_modified = file_modified(&script_path).ok();
-    let already_compiled = metadata_modified > script_modified;
 
-    if already_compiled {
+    let first_run = metadata_modified.is_none();
+    let skip_rebuild = metadata_modified > script_modified && build_mode == opt::BuildMode::Default;
+
+    if skip_rebuild {
         debug!("Already compiled, skipping compilation");
     } else {
         for file in cfg.files.iter() {
@@ -211,7 +223,7 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
             )?;
         }
 
-        run_build_command(&cfg, &script_cache_path, metadata_modified.is_none())?;
+        run_build_command(&cfg, &script_cache_path, first_run, build_mode)?;
 
         write_bytes(
             &script_cache_path,

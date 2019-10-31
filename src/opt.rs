@@ -12,8 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use failure::format_err;
 use log::debug;
+use std::str::FromStr;
 use structopt::StructOpt;
+
+// TODO: figure out how to add to structopt.
+#[derive(Debug, PartialEq)]
+pub enum BuildMode {
+    Default,
+    Source,
+    Full,
+}
+
+impl FromStr for BuildMode {
+    type Err = failure::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use BuildMode::*;
+        Ok(match s {
+            "" => Default,
+            "source" => Source,
+            "full" => Full,
+            _ => {
+                return Err(format_err!(
+                    "Incorrect SCRIPTISTO_BUILD environment variable value. Available values: <unset>, source, full."
+                ))
+            }
+        })
+    }
+}
 
 #[derive(Debug, StructOpt, PartialEq)]
 #[structopt(

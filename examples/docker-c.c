@@ -15,7 +15,7 @@
 // scriptisto-end
 
 int main(int argc, char* argv[]) {
-  gchar* user = g_getenv("USER");
+  const gchar* user = g_getenv("USER");
   printf("Hello, C built in Docker! Current user: %s\n", user);
   return 0;
 }
