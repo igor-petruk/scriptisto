@@ -187,6 +187,13 @@ fn run_build_command(
         }
     };
 
+    write_bytes(
+        &script_cache_path,
+        &PathBuf::from("scriptisto.metadata"),
+        String::new().as_bytes(),
+    )
+    .context("Cannot write metadata file")?;
+
     Ok(())
 }
 
@@ -224,13 +231,6 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
         }
 
         run_build_command(&cfg, &script_cache_path, first_run, build_mode)?;
-
-        write_bytes(
-            &script_cache_path,
-            &PathBuf::from("scriptisto.metadata"),
-            String::new().as_bytes(),
-        )
-        .context("Cannot write metadata file")?;
     }
 
     let mut full_target_bin = script_cache_path.clone();
