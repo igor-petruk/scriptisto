@@ -8,16 +8,15 @@
   docker_build:
     dockerfile: |
       FROM ocaml/opam2:alpine
-      RUN sudo apk add m4
-      RUN opam install -y lwt
+      RUN sudo apk add m4 && opam install -y lwt
     src_mount_dir: /src
   files:
    - path: dune
      content: (executable (name script) (libraries lwt.unix))
    - path: dune-workspace
      content: |
-       (lang dune 1.11)
-       (env (_ (flags -cclib -static)))
+      (lang dune 1.1)
+      (env (_ (flags -cclib -static)))
   scriptisto-end
 *)
 

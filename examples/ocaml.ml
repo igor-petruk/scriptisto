@@ -7,10 +7,7 @@
   target_bin: ./_build/default/script.exe
   files:
    - path: dune
-     content: |
-      (executable
-       (name script)
-       (libraries lwt.unix))
+     content: (executable (name script) (libraries lwt.unix))
   scriptisto-end
 *)
 

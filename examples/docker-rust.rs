@@ -11,10 +11,7 @@
 // files:
 //  - path: Cargo.toml
 //    content: |
-//     [package]
-//     name = "script"
-//     version = "0.1.0"
-//     edition = "2018"
+//     package = { name = "script", version = "0.1.0", edition = "2018"}
 //     [dependencies]
 //     rand="*"
 // scriptisto-end
