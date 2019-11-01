@@ -12,9 +12,20 @@
 //     version = "0.1.0"
 //     edition = "2018"
 //     [dependencies]
-//     rand="*"
+//     structopt="*"
 // scriptisto-end
 
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+#[structopt(name = "script", about = "A script.")]
+struct Opt {
+    /// Example input
+    #[structopt(short, long)]
+    input: Option<String>,
+}
+
 fn main() {
-    println!("Hello, Rust! Random: {}", rand::random::<u64>());
+    let opt = Opt::from_args();
+    println!("Hello, Rust! Command line options: {:?}", opt);
 }
