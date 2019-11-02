@@ -207,6 +207,7 @@ where
 fn build(
     build_mode: opt::BuildMode,
     script_path: &str,
+    show_logs: bool,
 ) -> Result<(cfg::BuildSpec, PathBuf), Error> {
     let script_path = Path::new(script_path);
 
@@ -239,7 +240,11 @@ fn build(
         }
 
         run_build_command(&cfg, &script_cache_path, first_run, build_mode, || {
-            Stdio::piped()
+            if show_logs {
+                Stdio::inherit()
+            } else {
+                Stdio::piped()
+            }
         })?;
     }
 
@@ -249,8 +254,9 @@ fn build(
 fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
     let build_mode_env = std::env::var_os("SCRIPTISTO_BUILD").unwrap_or_default();
     let build_mode = opt::BuildMode::from_str(&build_mode_env.to_string_lossy())?;
+    let show_logs = std::env::var_os("SCRIPTISTO_BUILD_LOGS").is_some();
 
-    let (cfg, script_cache_path) = build(build_mode, &script_path)?;
+    let (cfg, script_cache_path) = build(build_mode, &script_path, show_logs)?;
 
     let mut full_target_bin = script_cache_path.clone();
     full_target_bin.push(PathBuf::from(cfg.target_bin));
@@ -307,8 +313,9 @@ fn main_err() -> Result<(), Error> {
         Some(opt::Command::Build {
             script_src,
             build_mode,
+            show_logs,
         }) => {
-            let _ = build(build_mode.unwrap_or_default(), &script_src);
+            let _ = build(build_mode.unwrap_or_default(), &script_src, show_logs);
             Ok(())
         }
     }
