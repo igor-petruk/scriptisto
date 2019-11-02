@@ -282,7 +282,8 @@ fn main_err() -> Result<(), Error> {
             })?;
             default_main(&script_src, &opts.args)
         }
-        Some(opt::Command::New { lang }) => templates::command_new(lang),
+        Some(opt::Command::New { template_name }) => templates::command_new(template_name),
+        Some(opt::Command::Template { cmd }) => templates::command_template(cmd),
     }
 }
 

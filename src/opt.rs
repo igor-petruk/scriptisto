@@ -67,9 +67,14 @@ pub enum Command {
     /// choice.
     New {
         #[structopt(
-            help = "If specified, determines a language. Example usage: \"scriptisto new <lang> | tee new-script\".\nIf not specified, \"new\" lists available templates."
+            help = "If specified, determines a language. Example usage: \"scriptisto new <template_name> | tee new-script\".\nIf not specified, \"new\" lists available templates."
         )]
-        lang: Option<String>,
+        template_name: Option<String>,
+    },
+    /// Manage custom script templates.
+    Template {
+        #[structopt(subcommand)]
+        cmd: crate::templates::Command,
     },
 }
 

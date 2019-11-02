@@ -44,6 +44,7 @@ serde_derive='1.0.101'
 serde_yaml='0.8.11'
 md5="0.6.1"
 ascii_table="2.0.0"
+scrawl="1.0.0"
 
 [dependencies.structopt]
 version = '0.3'
