@@ -7,11 +7,19 @@
 # target_bin: ./script.py
 # scriptisto-end
 
-def print_str(s: str):
-    print("Hello, %s!" % s)
+import argparse
+from typing import Optional
+
+def print_hello(input: Optional[int]):
+    msg = "Hello, Python! Input: %d" % (input or 0)
+    print(msg)
 
 def main():
-  print_str("Python")
-  
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--input", type=int, help="Example input.")
+  args = parser.parse_args()
+
+  print_hello(args.input)
+
 if __name__== "__main__":
   main()

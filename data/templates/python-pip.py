@@ -14,13 +14,20 @@
 #       python3 $DIR/script.py $@
 # scriptisto-end
 
+import argparse
 from termcolor import colored, cprint
+from typing import Optional
 
-def print_str(s: str):
-    cprint("Hello, %s!" % s, 'green')
+def print_hello(input: Optional[int]):
+    msg = "Hello, Python! Input: %d" % (input or 0)
+    cprint(msg, 'green')
 
 def main():
-  print_str("Python")
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--input", type=int, help="Example input.")
+  args = parser.parse_args()
+
+  print_hello(args.input)
   
 if __name__== "__main__":
   main()
