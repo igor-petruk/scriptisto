@@ -282,7 +282,10 @@ pub fn command_template(cmd: Command) -> Result<(), Error> {
     let templates = get_templates()?;
 
     match cmd {
-        Command::List {} => Ok(print_templates(&templates)),
+        Command::List {} => {
+            print_templates(&templates);
+            Ok(())
+        }
         Command::Add { filename } => command_template_add(&filename),
         Command::Edit { template_name } => command_template_edit(template_name),
         Command::Rm { template_name } => command_template_rm(template_name),
