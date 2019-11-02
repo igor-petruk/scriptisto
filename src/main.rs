@@ -89,9 +89,8 @@ fn main_err() -> Result<(), Error> {
         Some(opt::Command::Build {
             script_src,
             build_mode,
-            show_logs,
         }) => {
-            let _ = build::perform(build_mode.unwrap_or_default(), &script_src, show_logs);
+            let _ = build::perform(build_mode.unwrap_or_default(), &script_src, true);
             Ok(())
         }
     }

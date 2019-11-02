@@ -90,9 +90,6 @@ pub enum Command {
         /// Build mode. If unset, only builds if necessary. "source" - to rebuild each time. "full" to fully re-fetch Docker image and run `build_once_cmd`.
         #[structopt(short, long)]
         build_mode: Option<BuildMode>,
-        /// Show build STDERR logs.
-        #[structopt(short = "l", long)]
-        show_logs: bool,
     },
 }
 
