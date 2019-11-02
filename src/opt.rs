@@ -17,12 +17,18 @@ use log::debug;
 use std::str::FromStr;
 use structopt::StructOpt;
 
-// TODO: figure out how to add to structopt.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, StructOpt)]
+#[structopt(rename_all = "snake-case")]
 pub enum BuildMode {
     Default,
     Source,
     Full,
+}
+
+impl Default for BuildMode {
+    fn default() -> Self {
+        BuildMode::Default
+    }
 }
 
 impl FromStr for BuildMode {
@@ -36,7 +42,7 @@ impl FromStr for BuildMode {
             "full" => Full,
             _ => {
                 return Err(format_err!(
-                    "Incorrect SCRIPTISTO_BUILD environment variable value. Available values: <unset>, source, full."
+                    "Incorrect build mode value. Available values: <unset>, source, full."
                 ))
             }
         })
@@ -75,6 +81,15 @@ pub enum Command {
     Template {
         #[structopt(subcommand)]
         cmd: crate::templates::Command,
+    },
+    /// Build a script without running.
+    Build {
+        /// A path to a script to build.
+        #[structopt()]
+        script_src: String,
+        /// Build mode. If unset, only builds if necessary. "source" - to rebuild each time. "full" to fully re-fetch Docker image and run `build_once_cmd`.
+        #[structopt(short, long)]
+        build_mode: Option<BuildMode>,
     },
 }
 

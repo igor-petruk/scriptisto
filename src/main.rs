@@ -64,9 +64,13 @@ fn file_modified(p: &Path) -> Result<std::time::SystemTime, std::io::Error> {
     Ok(modified)
 }
 
-fn run_command(current_directory: &Path, mut cmd: Command) -> Result<std::process::Output, Error> {
+fn run_command(
+    current_directory: &Path,
+    mut cmd: Command,
+    stderr_mode: Stdio,
+) -> Result<std::process::Output, Error> {
     cmd.stdout(Stdio::piped())
-        .stderr(Stdio::piped())
+        .stderr(stderr_mode)
         .current_dir(current_directory);
 
     debug!("Running command: {:?}", cmd);
@@ -95,17 +99,21 @@ fn run_command(current_directory: &Path, mut cmd: Command) -> Result<std::proces
     Ok(out)
 }
 
-fn run_build_command(
+fn run_build_command<F>(
     cfg: &cfg::BuildSpec,
     script_cache_path: &Path,
     first_run: bool,
     build_mode: opt::BuildMode,
-) -> Result<(), Error> {
+    stderr_mode: F,
+) -> Result<(), Error>
+where
+    F: Fn() -> Stdio,
+{
     if first_run || build_mode == opt::BuildMode::Full {
         if let Some(build_once_cmd) = &cfg.build_once_cmd {
             let mut cmd = Command::new("/bin/sh");
             cmd.arg("-c").arg(build_once_cmd);
-            run_command(&script_cache_path, cmd)?;
+            run_command(&script_cache_path, cmd, stderr_mode())?;
         }
     }
 
@@ -154,7 +162,7 @@ fn run_build_command(
                     .arg(&tmp_dockerfile_name)
                     .arg(".");
 
-                run_command(&script_cache_path, build_im_cmd)?;
+                run_command(&script_cache_path, build_im_cmd, stderr_mode())?;
 
                 // Build binary in Docker.
                 let mut cmd = Command::new("docker");
@@ -174,14 +182,14 @@ fn run_build_command(
                     .arg("-c")
                     .arg(build_cmd);
 
-                run_command(&script_cache_path, cmd)?;
+                run_command(&script_cache_path, cmd, stderr_mode())?;
             }
 
             _ => {
                 let mut cmd = Command::new("/bin/sh");
                 cmd.arg("-c").arg(build_cmd);
 
-                run_command(&script_cache_path, cmd)?;
+                run_command(&script_cache_path, cmd, stderr_mode())?;
             }
         }
     }
@@ -196,8 +204,12 @@ fn run_build_command(
     Ok(())
 }
 
-fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
+fn build(
+    build_mode: opt::BuildMode,
+    script_path: &str,
+) -> Result<(cfg::BuildSpec, PathBuf), Error> {
     let script_path = Path::new(script_path);
+
     let script_body = std::fs::read(&script_path).context("Cannot read script file")?;
     let script_cache_path = build_cache_path(script_path).context(format!(
         "Cannot build cache path for script: {:?}",
@@ -206,9 +218,6 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
     debug!("Path: {:?}", script_path);
     debug!("Cache path: {:?}", script_cache_path);
     let cfg = cfg::BuildSpec::new(&script_body)?;
-
-    let build_mode_env = std::env::var_os("SCRIPTISTO_BUILD").unwrap_or_default();
-    let build_mode = opt::BuildMode::from_str(&build_mode_env.to_string_lossy())?;
 
     let mut metadata_path = script_cache_path.clone();
     metadata_path.push("scriptisto.metadata");
@@ -229,8 +238,19 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
             )?;
         }
 
-        run_build_command(&cfg, &script_cache_path, first_run, build_mode)?;
+        run_build_command(&cfg, &script_cache_path, first_run, build_mode, || {
+            Stdio::piped()
+        })?;
     }
+
+    Ok((cfg, script_cache_path))
+}
+
+fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
+    let build_mode_env = std::env::var_os("SCRIPTISTO_BUILD").unwrap_or_default();
+    let build_mode = opt::BuildMode::from_str(&build_mode_env.to_string_lossy())?;
+
+    let (cfg, script_cache_path) = build(build_mode, &script_path)?;
 
     let mut full_target_bin = script_cache_path.clone();
     full_target_bin.push(PathBuf::from(cfg.target_bin));
@@ -284,6 +304,13 @@ fn main_err() -> Result<(), Error> {
         }
         Some(opt::Command::New { template_name }) => templates::command_new(template_name),
         Some(opt::Command::Template { cmd }) => templates::command_template(cmd),
+        Some(opt::Command::Build {
+            script_src,
+            build_mode,
+        }) => {
+            let _ = build(build_mode.unwrap_or_default(), &script_src);
+            Ok(())
+        }
     }
 }
 
