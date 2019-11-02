@@ -42,7 +42,7 @@ log = '0.4.8'
 serde='1.0.101'
 serde_derive='1.0.101'
 serde_yaml='0.8.11'
-md5="0.6.1"
+md5="0.7.0"
 ascii_table="2.0.0"
 scrawl="1.0.0"
 
