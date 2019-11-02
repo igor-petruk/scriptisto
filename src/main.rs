@@ -16,9 +16,7 @@
 extern crate include_dir;
 
 use failure::{format_err, Error, ResultExt};
-use include_dir::Dir;
 use log::debug;
-use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -27,8 +25,7 @@ use std::str::FromStr;
 
 mod cfg;
 mod opt;
-
-const TEMPLATES: Dir = include_dir!("./data/templates/");
+mod templates;
 
 fn build_cache_path(script_path: &Path) -> Result<PathBuf, Error> {
     let script_path = script_path
@@ -273,33 +270,6 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
     Err(error)
 }
 
-fn gen_main(lang: Option<String>) -> Result<(), Error> {
-    let mut langs = BTreeSet::new();
-    for file in TEMPLATES.files() {
-        let path = PathBuf::from(file.path());
-        let file_stem = path
-            .file_stem()
-            .ok_or_else(|| format_err!("Cannot strip extension from {:?}", path))?;
-        let current_lang = file_stem.to_string_lossy().into_owned();
-        if lang == Some(current_lang.clone()) {
-            print!(
-                "{}",
-                file.contents_utf8()
-                    .ok_or_else(|| format_err!("File {:?} is not UTF-8", file))?
-            );
-            return Ok(());
-        }
-        langs.insert(current_lang);
-    }
-    // Not found
-    let langs: Vec<_> = langs.iter().collect();
-    eprintln!(
-        "Usage: scriptisto new <lang> | tee ./new-script\nAvailable languages: {:#?}",
-        langs
-    );
-    Ok(())
-}
-
 fn main_err() -> Result<(), Error> {
     let args: Vec<String> = std::env::args().collect();
     let opts = opt::from_args(&args);
@@ -312,7 +282,7 @@ fn main_err() -> Result<(), Error> {
             })?;
             default_main(&script_src, &opts.args)
         }
-        Some(opt::Command::New { lang }) => gen_main(lang),
+        Some(opt::Command::New { lang }) => templates::command_new(lang),
     }
 }
 
