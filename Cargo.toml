@@ -14,7 +14,7 @@
 
 [package]
 name = "scriptisto"
-version = "0.5.2"
+version = "0.5.3"
 edition = "2018"
 license = "Apache-2.0"
 description = "A language-agnostic \"shebang interpreter\" that enables you to write scripts in compiled languages."
