@@ -28,7 +28,7 @@ use std::str::FromStr;
 mod cfg;
 mod opt;
 
-const EXAMPLES: Dir = include_dir!("./examples/");
+const TEMPLATES: Dir = include_dir!("./data/templates/");
 
 fn build_cache_path(script_path: &Path) -> Result<PathBuf, Error> {
     let script_path = script_path
@@ -273,7 +273,7 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
 
 fn gen_main(lang: Option<String>) -> Result<(), Error> {
     let mut langs = BTreeSet::new();
-    for file in EXAMPLES.files() {
+    for file in TEMPLATES.files() {
         let path = PathBuf::from(file.path());
         let file_stem = path
             .file_stem()
