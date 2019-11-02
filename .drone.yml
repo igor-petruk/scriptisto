@@ -12,7 +12,7 @@ steps:
       - rustup component add clippy
       - cargo build --release
       - cargo clippy --release -- -D warnings
-      - cargo test --tests --release
+      - cargo test --release
       - strip ./target/release/scriptisto
       - bzip2 -f ./target/release/scriptisto
       - pwd
@@ -29,7 +29,7 @@ steps:
       - apt-get update
       - apt-get install -y musl-tools rpm
       - cargo build --release --target=x86_64-unknown-linux-musl
-      - cargo test --tests --release --target=x86_64-unknown-linux-musl
+      - cargo test --release --target=x86_64-unknown-linux-musl
       - strip ./target/x86_64-unknown-linux-musl/release/scriptisto
       - bzip2 -f ./target/x86_64-unknown-linux-musl/release/scriptisto
       - sha256sum ./target/x86_64-unknown-linux-musl/release/scriptisto.bz2
