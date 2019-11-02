@@ -112,80 +112,82 @@ fn run_build_command(
         }
     }
 
-    match &cfg.docker_build {
-        // TODO: Do better validation for empty dockerfile, but not-empty docker_build.
-        Some(docker_build) if docker_build.dockerfile.is_some() => {
-            // Write Dockerfile.
-            let tmp_dockerfile_name = "Dockerfile.scriptisto";
-            write_bytes(
-                &script_cache_path,
-                &PathBuf::from(&tmp_dockerfile_name),
-                docker_build.dockerfile.clone().unwrap().as_bytes(),
-            )?;
+    if let Some(build_cmd) = &cfg.build_cmd {
+        match &cfg.docker_build {
+            // TODO: Do better validation for empty dockerfile, but not-empty docker_build.
+            Some(docker_build) if docker_build.dockerfile.is_some() => {
+                // Write Dockerfile.
+                let tmp_dockerfile_name = "Dockerfile.scriptisto";
+                write_bytes(
+                    &script_cache_path,
+                    &PathBuf::from(&tmp_dockerfile_name),
+                    docker_build.dockerfile.clone().unwrap().as_bytes(),
+                )?;
 
-            // Build temporary image.
-            let tmp_docker_image = format!(
-                "scriptisto-{}-{:x}",
-                script_cache_path
-                    .file_name()
-                    .ok_or_else(|| format_err!(
-                        "BUG: invalid script_cache_path={:?}",
-                        script_cache_path
-                    ))?
-                    .to_string_lossy(),
-                md5::compute(script_cache_path.to_string_lossy().as_bytes())
-            )
-            .to_string();
+                // Build temporary image.
+                let tmp_docker_image = format!(
+                    "scriptisto-{}-{:x}",
+                    script_cache_path
+                        .file_name()
+                        .ok_or_else(|| format_err!(
+                            "BUG: invalid script_cache_path={:?}",
+                            script_cache_path
+                        ))?
+                        .to_string_lossy(),
+                    md5::compute(script_cache_path.to_string_lossy().as_bytes())
+                )
+                .to_string();
 
-            let mut build_im_cmd = Command::new("docker");
-            build_im_cmd.arg("build");
+                let mut build_im_cmd = Command::new("docker");
+                build_im_cmd.arg("build");
 
-            if build_mode == opt::BuildMode::Full {
-                build_im_cmd.arg("--no-cache");
+                if build_mode == opt::BuildMode::Full {
+                    build_im_cmd.arg("--no-cache");
+                }
+
+                build_im_cmd
+                    .arg("-t")
+                    .arg(&tmp_docker_image)
+                    .arg("--label")
+                    .arg(format!(
+                        "scriptisto-cache-path={}",
+                        script_cache_path.to_string_lossy()
+                    ))
+                    .arg("-f")
+                    .arg(&tmp_dockerfile_name)
+                    .arg(".");
+
+                run_command(&script_cache_path, build_im_cmd)?;
+
+                // Build binary in Docker.
+                let mut cmd = Command::new("docker");
+                cmd.arg("run").arg("-t").arg("--rm");
+
+                if let Some(src_mount_dir) = &docker_build.src_mount_dir {
+                    cmd.arg("-v").arg(format!(
+                        "{}:{}",
+                        script_cache_path.to_string_lossy(),
+                        src_mount_dir
+                    ));
+                }
+
+                cmd.args(docker_build.extra_args.iter())
+                    .arg(tmp_docker_image)
+                    .arg("sh")
+                    .arg("-c")
+                    .arg(build_cmd);
+
+                run_command(&script_cache_path, cmd)?;
             }
 
-            build_im_cmd
-                .arg("-t")
-                .arg(&tmp_docker_image)
-                .arg("--label")
-                .arg(format!(
-                    "scriptisto-cache-path={}",
-                    script_cache_path.to_string_lossy()
-                ))
-                .arg("-f")
-                .arg(&tmp_dockerfile_name)
-                .arg(".");
+            _ => {
+                let mut cmd = Command::new("/bin/sh");
+                cmd.arg("-c").arg(build_cmd);
 
-            run_command(&script_cache_path, build_im_cmd)?;
-
-            // Build binary in Docker.
-            let mut cmd = Command::new("docker");
-            cmd.arg("run").arg("-t").arg("--rm");
-
-            if let Some(src_mount_dir) = &docker_build.src_mount_dir {
-                cmd.arg("-v").arg(format!(
-                    "{}:{}",
-                    script_cache_path.to_string_lossy(),
-                    src_mount_dir
-                ));
+                run_command(&script_cache_path, cmd)?;
             }
-
-            cmd.args(docker_build.extra_args.iter())
-                .arg(tmp_docker_image)
-                .arg("sh")
-                .arg("-c")
-                .arg(cfg.build_cmd.clone());
-
-            run_command(&script_cache_path, cmd)?;
         }
-
-        _ => {
-            let mut cmd = Command::new("/bin/sh");
-            cmd.arg("-c").arg(cfg.build_cmd.clone());
-
-            run_command(&script_cache_path, cmd)?;
-        }
-    };
+    }
 
     write_bytes(
         &script_cache_path,

@@ -21,7 +21,7 @@ use std::io::{BufRead, BufReader};
 #[derive(Deserialize, Debug)]
 pub struct BuildSpec {
     pub script_src: String,
-    pub build_cmd: String,
+    pub build_cmd: Option<String>,
     pub build_once_cmd: Option<String>,
     #[serde(default = "default_target_bin")]
     pub target_bin: String,
