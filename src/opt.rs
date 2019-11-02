@@ -151,7 +151,7 @@ mod tests {
                 script_src: None,
                 args: vec![],
                 cmd: Some(Command::New {
-                    lang: Some("rust".into()),
+                    template_name: Some("rust".into()),
                 }),
             }
         );
