@@ -440,7 +440,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "scriptisto"
-version = "0.5.4"
+version = "0.5.5-alpha.0"
 dependencies = [
  "ascii_table 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "dirs 2.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
