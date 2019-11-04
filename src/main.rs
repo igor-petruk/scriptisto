@@ -97,14 +97,7 @@ fn main_err() -> Result<(), Error> {
 }
 
 fn main() {
-    #[cfg(debug_assertions)]
-    {
-        simple_logger::init_with_level(log::Level::Debug).expect("Cannot init simple logger");
-    }
-    #[cfg(not(debug_assertions))]
-    {
-        simple_logger::init_with_level(log::Level::Info).expect("Cannot init simple logger");
-    }
+    env_logger::init();
 
     if let Err(e) = main_err() {
         eprintln!("Error: {:?}", e);
