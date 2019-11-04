@@ -3,35 +3,36 @@ use failure::{format_err, Error, ResultExt};
 use include_dir::Dir;
 use log::debug;
 use std::collections::BTreeMap;
+use std::fmt::Debug;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 
 const TEMPLATES: Dir = include_dir!("./data/templates/");
-const NEW_TEMPLATE: &str = include_str!("../data/new-template");
 
 #[derive(Debug, StructOpt, PartialEq)]
 pub enum Command {
-    /// Adds a new template.
-    Add {
+    /// Imports a template from file.
+    Import {
         #[structopt(
             help = "A filename of the script file. Extension will be stripped for the template name."
         )]
-        filename: String,
+        file: PathBuf,
     },
-    /// Opens and editor to modify an existing template.
+    /// Opens an editor to modify an existing template, nice for quick edits.
     Edit {
         #[structopt(help = "A name of the template to edit")]
         template_name: String,
     },
-    /// Remove a custom template or reset it to built-in contents.
-    Rm {
+    /// Remove a custom template or reset it to the built-in contents.
+    #[structopt(name = "rm", visible_aliases = &["remove", "delete"])]
+    Remove {
         #[structopt(help = "A name of the template to remove")]
         template_name: String,
     },
-    /// List all templates. Alias: ls.
-    #[structopt(alias = "ls")]
+    /// List all templates.
+    #[structopt(name = "ls", visible_alias = "list")]
     List {},
 }
 
@@ -50,15 +51,30 @@ struct Template {
 
 type TemplateMap = BTreeMap<String, Template>;
 
-fn filename_to_template_name<T: AsRef<Path>>(p: T) -> Result<String, Error> {
+fn path_to_file_name<T: AsRef<Path> + Debug>(p: T) -> Result<String, Error> {
     let p: PathBuf = p.as_ref().into();
-    let file_name = p
-        .file_name()
-        .ok_or_else(|| format_err!("Cannot extract filename from {:?}", p))?;
-    Ok(p.file_stem()
-        .unwrap_or(file_name)
+    Ok(p.file_name()
+        .ok_or_else(|| format_err!("Cannot extract filename from {:?}", p))?
         .to_string_lossy()
         .to_string())
+}
+
+fn filename_to_template_name<T: AsRef<Path>>(p: T) -> Result<String, Error> {
+    let p: PathBuf = p.as_ref().into();
+    let file_name = path_to_file_name(&p)?;
+    Ok(p.file_stem()
+        .map(|f| f.to_string_lossy().to_string())
+        .unwrap_or(file_name))
+}
+
+// Also creates the directory, this ok for now.
+fn filename_to_template_path<T: AsRef<Path> + Debug>(p: T) -> Result<PathBuf, Error> {
+    let file_name = path_to_file_name(&p)?;
+    let templates_directory = get_templates_directory()?;
+    std::fs::create_dir_all(&templates_directory)?;
+    let mut template_path = templates_directory.clone();
+    template_path.push(file_name);
+    Ok(template_path)
 }
 
 fn get_built_in_templates() -> Result<TemplateMap, Error> {
@@ -69,11 +85,7 @@ fn get_built_in_templates() -> Result<TemplateMap, Error> {
             filename_to_template_name(&path)?,
             Template {
                 source: Source::BuiltIn,
-                filename: path
-                    .file_name()
-                    .ok_or_else(|| format_err!("Cannot extract filename from {:?}", path))?
-                    .to_string_lossy()
-                    .to_string(),
+                filename: path_to_file_name(path)?,
                 contents: file
                     .contents_utf8()
                     .ok_or_else(|| format_err!("File {:?} is not UTF-8", file))?
@@ -103,7 +115,7 @@ fn get_custom_templates() -> Result<TemplateMap, Error> {
             for template_file in dir_iter {
                 let template_file = template_file?;
                 let name = filename_to_template_name(template_file.path())?;
-                let filename = template_file.file_name().to_string_lossy().to_string();
+                let filename = path_to_file_name(&template_file.path())?;
                 let contents = std::fs::read_to_string(template_file.path())?;
                 templates.insert(
                     name,
@@ -205,6 +217,16 @@ pub fn command_new(name: Option<String>) -> Result<(), Error> {
     Ok(())
 }
 
+pub fn write_template(filename: &str, content: &str) -> Result<(), Error> {
+    let template_path = filename_to_template_path(filename)?;
+    let mut file = File::create(&template_path).context("Cannot create script file")?;
+    let bytes = content.as_bytes();
+    file.write_all(bytes)
+        .context("Cannot write bytes to file")?;
+    debug!("Wrote {} bytes to {:?}", bytes.len(), template_path);
+    Ok(())
+}
+
 pub fn edit(initial_value: &str, filename: &str) -> Result<(), Error> {
     let extension = filename_extension(filename);
     let mut editor = scrawl::editor::Editor::new();
@@ -213,35 +235,41 @@ pub fn edit(initial_value: &str, filename: &str) -> Result<(), Error> {
     let new_value = editor.edit().unwrap();
 
     if new_value.trim() == initial_value.trim() {
-        println!("No changes was made during editing.");
+        println!("No changes were made during editing.");
     } else {
-        let templates_directory = get_templates_directory()?;
-        std::fs::create_dir_all(&templates_directory)?;
-        let mut script_path = templates_directory.clone();
-        script_path.push(filename);
-        let mut file = File::create(&script_path).context("Cannot create script file")?;
-        let bytes = new_value.as_bytes();
-        file.write_all(bytes)
-            .context("Cannot write bytes to file")?;
-        debug!("Wrote {} bytes to {:?}", bytes.len(), script_path);
+        write_template(filename, &new_value)?;
     }
 
     Ok(())
 }
 
-pub fn command_template_add(filename: &str) -> Result<(), Error> {
-    let template_name = filename_to_template_name(filename)?;
+pub fn command_template_import(path: &Path) -> Result<(), Error> {
+    let file_name = path_to_file_name(&path)?;
     let templates = get_templates()?;
+    let template_name = filename_to_template_name(path)?;
 
-    if templates.contains_key(&template_name) {
-        println!(
-            "Cannot add new template '{}', already exits.\nMaybe \"scriptisto template edit {}\"?",
-            template_name, template_name
-        );
-        std::process::exit(1);
+    let old_file_to_remove: Option<_> = templates
+        .get(&template_name)
+        .iter()
+        .flat_map(|template| {
+            if file_name != template.filename {
+                Some(template.filename.clone())
+            } else {
+                None
+            }
+        })
+        .next();
+
+    let template_path = filename_to_template_path(file_name)?;
+    std::fs::copy(path, template_path).context("Cannot copy file to the template directory")?;
+
+    // Not that copy was successful.
+    if let Some(old_file) = old_file_to_remove {
+        let path = filename_to_template_path(old_file)?;
+        std::fs::remove_file(&path)
+            .context("Failed to remove old template, template directory may be insonsistent!")?;
     }
-
-    edit(NEW_TEMPLATE, filename)
+    Ok(())
 }
 
 pub fn command_template_edit(template_name: String) -> Result<(), Error> {
@@ -286,8 +314,8 @@ pub fn command_template(cmd: Command) -> Result<(), Error> {
             print_templates(&templates);
             Ok(())
         }
-        Command::Add { filename } => command_template_add(&filename),
+        Command::Import { file } => command_template_import(&file),
         Command::Edit { template_name } => command_template_edit(template_name),
-        Command::Rm { template_name } => command_template_rm(template_name),
+        Command::Remove { template_name } => command_template_rm(template_name),
     }
 }
