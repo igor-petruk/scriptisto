@@ -46,6 +46,8 @@ md5="0"
 ascii_table="2.0"
 scrawl="1.0"
 users="0.9"
+walkdir="2"
+number_prefix="0.3"
 
 [dependencies.structopt]
 version = '0.3'

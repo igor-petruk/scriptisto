@@ -22,6 +22,7 @@ use std::process::exit;
 use std::str::FromStr;
 
 mod build;
+mod cache;
 mod cfg;
 mod common;
 mod opt;
@@ -84,6 +85,7 @@ fn main_err() -> Result<(), Error> {
             })?;
             default_main(&script_src, &opts.args)
         }
+        Some(opt::Command::Cache { cmd }) => cache::command_cache(cmd),
         Some(opt::Command::New { template_name }) => templates::command_new(template_name),
         Some(opt::Command::Template { cmd }) => templates::command_template(cmd),
         Some(opt::Command::Build {

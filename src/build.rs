@@ -33,6 +33,15 @@ fn docker_prefix(script_cache_path: &Path) -> Result<String, Error> {
     .to_string())
 }
 
+pub fn docker_image_name(script_cache_path: &Path) -> Result<String, Error> {
+    docker_prefix(script_cache_path)
+}
+
+pub fn docker_volume_name(script_cache_path: &Path) -> Result<String, Error> {
+    let docker_prefix = docker_prefix(script_cache_path)?;
+    Ok(format!("{}-src", docker_prefix).to_string())
+}
+
 fn docker_create_volume(
     volume_name: &str,
     script_cache_path: &Path,
@@ -100,10 +109,8 @@ where
                     docker_build.dockerfile.clone().unwrap().as_bytes(),
                 )?;
 
-                let docker_prefix = docker_prefix(script_cache_path)?;
-
                 // Create and populate sources volume.
-                let src_docker_volume = format!("{}-src", docker_prefix).to_string();
+                let src_docker_volume = docker_volume_name(script_cache_path)?;
 
                 docker_create_volume(&src_docker_volume, &script_cache_path, stderr_mode())?;
 
@@ -116,7 +123,7 @@ where
                 )?;
 
                 // Build temporary image.
-                let tmp_docker_image = docker_prefix;
+                let tmp_docker_image = docker_image_name(script_cache_path)?;
 
                 let mut build_im_cmd = Command::new("docker");
                 build_im_cmd.arg("build");

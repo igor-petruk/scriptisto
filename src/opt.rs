@@ -69,6 +69,11 @@ pub struct Opt {
 
 #[derive(Debug, StructOpt, PartialEq)]
 pub enum Command {
+    /// Build cache operations.
+    Cache {
+        #[structopt(subcommand)]
+        cmd: crate::cache::Command,
+    },
     /// Prints an example starting script in a programming language of your
     /// choice.
     New {
