@@ -19,6 +19,7 @@ use number_prefix::{NumberPrefix, Prefixed, Standalone};
 use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::path::{Path, PathBuf};
+use std::process;
 use structopt::StructOpt;
 
 use crate::*;
@@ -30,9 +31,16 @@ pub enum Command {
         #[structopt(help = "A filename of the script file.")]
         file: PathBuf,
     },
+    /// Clean the cache for a particular script. Removes the cache directory. Removes the Docker image/volume if
+    /// they exist, but does not prune.
+    #[structopt(visible_alias = "clear")]
+    Clean {
+        #[structopt(help = "A filename of the script file.")]
+        file: PathBuf,
+    },
     /// Shows a particular item from "info" by name.
     Get {
-        #[structopt(help = "Item name, e.g. cache_path.")]
+        #[structopt(help = "An item name, e.g. cache_path.")]
         name: String,
         #[structopt(help = "A filename of the script file.")]
         file: PathBuf,
@@ -116,8 +124,30 @@ pub fn command_info(script_path: &Path) -> Result<(), Error> {
     Ok(())
 }
 
+pub fn command_clean(script_path: &Path) -> Result<(), Error> {
+    let items = collect_info(&script_path)?;
+    let cache_path = items.get("cache_path").expect("cache_path to exist");
+
+    let _ = std::fs::remove_dir_all(cache_path);
+
+    if let Some(docker_image) = items.get("docker_image") {
+        let mut cmd = process::Command::new("docker");
+        cmd.arg("image").arg("rm").arg(&docker_image);
+        let _ = common::run_command(&PathBuf::from("/"), cmd, process::Stdio::piped());
+    }
+
+    if let Some(docker_volume) = items.get("docker_src_volume") {
+        let mut cmd = process::Command::new("docker");
+        cmd.arg("volume").arg("rm").arg(&docker_volume);
+        let _ = common::run_command(&PathBuf::from("/"), cmd, process::Stdio::piped());
+    }
+
+    Ok(())
+}
+
 pub fn command_cache(cmd: Command) -> Result<(), Error> {
     match cmd {
+        Command::Clean { file } => command_clean(&file),
         Command::Get { name, file } => command_get(&name, &file),
         Command::Info { file } => command_info(&file),
     }
