@@ -92,7 +92,7 @@ fn collect_info(script_path: &Path) -> Result<BTreeMap<String, String>, Error> {
         );
         items.insert(
             "dir_size".into(),
-            format!("{}", get_dir_size_lossy(&script_cache_path)).into(),
+            get_dir_size_lossy(&script_cache_path).to_string(),
         );
     }
 
