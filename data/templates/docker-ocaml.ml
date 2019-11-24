@@ -3,7 +3,7 @@
 (*
   scriptisto-begin
   script_src: script.ml
-  build_cmd: cd /src/ && opam exec -- dune build script.exe
+  build_cmd: cd /src/ && sudo chown -R $(id -u) /src && opam exec -- dune build script.exe
   target_bin: ./_build/default/script.exe
   docker_build:
     dockerfile: |

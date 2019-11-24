@@ -48,6 +48,7 @@ pub struct File {
 pub struct DockerBuild {
     pub dockerfile: Option<String>,
     pub src_mount_dir: Option<String>,
+    pub target_bin: Option<String>,
     #[serde(default)]
     pub extra_args: Vec<String>,
 }
