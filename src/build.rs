@@ -21,6 +21,55 @@ use crate::cfg;
 use crate::common;
 use crate::opt;
 
+fn docker_prefix(script_cache_path: &Path) -> Result<String, Error> {
+    Ok(format!(
+        "scriptisto-{}-{:x}",
+        script_cache_path
+            .file_name()
+            .ok_or_else(|| format_err!("BUG: invalid script_cache_path={:?}", script_cache_path))?
+            .to_string_lossy(),
+        md5::compute(script_cache_path.to_string_lossy().as_bytes())
+    )
+    .to_string())
+}
+
+fn docker_create_volume(
+    volume_name: &str,
+    script_cache_path: &Path,
+    stderr_mode: Stdio,
+) -> Result<(), Error> {
+    let mut build_vol_cmd = Command::new("docker");
+    build_vol_cmd.arg("volume").arg("create").arg(&volume_name);
+    common::run_command(&script_cache_path, build_vol_cmd, stderr_mode)?;
+    Ok(())
+}
+
+fn docker_volume_cmd(
+    volume_name: &str,
+    script_cache_path: &Path,
+    run_as_current_user: bool,
+    cmd: &str,
+    stderr_mode: Stdio,
+) -> Result<(), Error> {
+    let mut vol_cmd = Command::new("docker");
+    vol_cmd.args(&["run", "-t", "--rm"]);
+    if run_as_current_user {
+        vol_cmd.args(&["-u", &format!("{}", users::get_current_uid())]);
+    }
+    vol_cmd.args(&[
+        "-v",
+        &format!("{}:/vol", &volume_name),
+        "-v",
+        &format!("{}:/src", &script_cache_path.to_string_lossy()),
+        "busybox",
+        "sh",
+        "-c",
+        cmd,
+    ]);
+    common::run_command(&script_cache_path, vol_cmd, stderr_mode)?;
+    Ok(())
+}
+
 fn run_build_command<F>(
     cfg: &cfg::BuildSpec,
     script_cache_path: &Path,
@@ -51,41 +100,20 @@ where
                     docker_build.dockerfile.clone().unwrap().as_bytes(),
                 )?;
 
-                let docker_prefix = format!(
-                    "scriptisto-{}-{:x}",
-                    script_cache_path
-                        .file_name()
-                        .ok_or_else(|| format_err!(
-                            "BUG: invalid script_cache_path={:?}",
-                            script_cache_path
-                        ))?
-                        .to_string_lossy(),
-                    md5::compute(script_cache_path.to_string_lossy().as_bytes())
-                )
-                .to_string();
+                let docker_prefix = docker_prefix(script_cache_path)?;
 
+                // Create and populate sources volume.
                 let src_docker_volume = format!("{}-src", docker_prefix).to_string();
-                let mut build_vol_cmd = Command::new("docker");
-                build_vol_cmd
-                    .arg("volume")
-                    .arg("create")
-                    .arg(&src_docker_volume);
-                common::run_command(&script_cache_path, build_vol_cmd, stderr_mode())?;
 
-                let mut populate_vol_cmd = Command::new("docker");
-                populate_vol_cmd
-                    .arg("run")
-                    .arg("-t")
-                    .arg("--rm")
-                    .arg("-v")
-                    .arg(format!("{}:/vol", &src_docker_volume))
-                    .arg("-v")
-                    .arg(format!("{}:/src", &script_cache_path.to_string_lossy()))
-                    .arg("busybox")
-                    .arg("sh")
-                    .arg("-c")
-                    .arg("cp -rf /src/* /vol/");
-                common::run_command(&script_cache_path, populate_vol_cmd, stderr_mode())?;
+                docker_create_volume(&src_docker_volume, &script_cache_path, stderr_mode())?;
+
+                docker_volume_cmd(
+                    &src_docker_volume,
+                    &script_cache_path,
+                    false,
+                    "cp -rf /src/* /vol/",
+                    stderr_mode(),
+                )?;
 
                 // Build temporary image.
                 let tmp_docker_image = docker_prefix;
@@ -128,33 +156,23 @@ where
 
                 common::run_command(&script_cache_path, cmd, stderr_mode())?;
 
+                // Extract target_bin back to host.
                 let mut vol_path = PathBuf::from("/vol");
                 vol_path.push(&cfg.target_bin);
-
                 let mut src_path = PathBuf::from("/src");
                 src_path.push(&cfg.target_bin);
-
-                let mut extract_vol_cmd = Command::new("docker");
-                extract_vol_cmd
-                    .arg("run")
-                    .arg("-t")
-                    .arg("--rm")
-                    .arg("-u")
-                    .arg(format!("{}", users::get_current_uid()))
-                    .arg("-v")
-                    .arg(format!("{}:/vol", &src_docker_volume))
-                    .arg("-v")
-                    .arg(format!("{}:/src", &script_cache_path.to_string_lossy()))
-                    .arg("busybox")
-                    .arg("sh")
-                    .arg("-c")
-                    .arg(format!(
+                docker_volume_cmd(
+                    &src_docker_volume,
+                    &script_cache_path,
+                    true,
+                    &format!(
                         "mkdir -p $(dirname {}) && cp -rf {} {}",
                         src_path.to_string_lossy(),
                         vol_path.to_string_lossy(),
                         src_path.to_string_lossy(),
-                    ));
-                common::run_command(&script_cache_path, extract_vol_cmd, stderr_mode())?;
+                    ),
+                    stderr_mode(),
+                )?;
             }
 
             _ => {
