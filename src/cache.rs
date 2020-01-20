@@ -90,10 +90,7 @@ fn collect_info(script_path: &Path) -> Result<BTreeMap<String, String>, Error> {
             "docker_src_volume".into(),
             build::docker_volume_name(&script_cache_path)?,
         );
-        items.insert(
-            "dir_size".into(),
-            get_dir_size_lossy(&script_cache_path).to_string(),
-        );
+        items.insert("dir_size".into(), get_dir_size_lossy(&script_cache_path));
     }
 
     Ok(items)

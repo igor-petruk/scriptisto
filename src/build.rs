@@ -29,8 +29,7 @@ fn docker_prefix(script_cache_path: &Path) -> Result<String, Error> {
             .ok_or_else(|| format_err!("BUG: invalid script_cache_path={:?}", script_cache_path))?
             .to_string_lossy(),
         md5::compute(script_cache_path.to_string_lossy().as_bytes())
-    )
-    .to_string())
+    ))
 }
 
 pub fn docker_image_name(script_cache_path: &Path) -> Result<String, Error> {
@@ -39,7 +38,7 @@ pub fn docker_image_name(script_cache_path: &Path) -> Result<String, Error> {
 
 pub fn docker_volume_name(script_cache_path: &Path) -> Result<String, Error> {
     let docker_prefix = docker_prefix(script_cache_path)?;
-    Ok(format!("{}-src", docker_prefix).to_string())
+    Ok(format!("{}-src", docker_prefix))
 }
 
 fn docker_create_volume(

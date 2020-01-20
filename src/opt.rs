@@ -115,7 +115,7 @@ pub fn from_args(args: &[String]) -> Opt {
             // Do not use structopt, because it will try to recognize subcommands in all args.
             let extra_args: Vec<_> = args_iter.cloned().collect();
             Opt {
-                script_src: Some(script_src.to_string()),
+                script_src: Some((*script_src).to_string()),
                 args: extra_args,
                 cmd: None,
             }

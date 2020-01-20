@@ -86,7 +86,7 @@ fn filename_to_template_path<T: AsRef<Path> + Debug>(p: T) -> Result<PathBuf, Er
     let file_name = path_to_file_name(&p)?;
     let templates_directory = get_templates_directory()?;
     std::fs::create_dir_all(&templates_directory)?;
-    let mut template_path = templates_directory.clone();
+    let mut template_path = templates_directory;
     template_path.push(file_name);
     Ok(template_path)
 }

@@ -35,7 +35,7 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
 
     let (cfg, script_cache_path) = build::perform(build_mode, &script_path, show_logs)?;
 
-    let mut full_target_bin = script_cache_path.clone();
+    let mut full_target_bin = script_cache_path;
     full_target_bin.push(PathBuf::from(cfg.target_bin));
     let full_target_bin = full_target_bin
         .canonicalize()?
