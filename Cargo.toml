@@ -28,7 +28,7 @@ authors = [
 
 [package.metadata.rpm.cargo]
 target = "x86_64-unknown-linux-musl"
-buildflags = ["--release","--target=x86_64-unknown-linux-musl"]
+buildflags = ["--release"]
 
 [package.metadata.rpm.targets]
 scriptisto = { path = "/usr/bin/scriptisto" }
