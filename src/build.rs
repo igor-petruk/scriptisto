@@ -150,14 +150,15 @@ where
 
                 // Build binary in Docker.
                 let mut cmd = Command::new("docker");
-                cmd.arg("run").arg("-t").arg("--rm").arg("--env").arg(
-                    format!(
+                cmd.arg("run")
+                    .arg("-t")
+                    .arg("--rm")
+                    .arg("--env")
+                    .arg(format!(
                         "{}={}",
                         SCRIPTISTO_SOURCE_VAR,
                         &script_path.to_string_lossy()
-                    )
-                    .to_string(),
-                );
+                    ));
 
                 if let Some(src_mount_dir) = &docker_build.src_mount_dir {
                     cmd.arg("-v")
