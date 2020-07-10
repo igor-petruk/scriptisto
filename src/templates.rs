@@ -243,10 +243,11 @@ pub fn write_template(filename: &str, content: &str) -> Result<(), Error> {
 
 pub fn edit(initial_value: &str, filename: &str) -> Result<(), Error> {
     let extension = filename_extension(filename);
-    let mut editor = scrawl::editor::Editor::new();
-    editor.contents(initial_value).extension(&extension);
+    let editor = scrawl::editor::new()
+        .extension(&extension)
+        .contents(initial_value);
 
-    let new_value = editor.edit().unwrap();
+    let new_value = editor.open().unwrap();
 
     if new_value.trim() == initial_value.trim() {
         println!("No changes were made during editing.");
