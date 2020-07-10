@@ -15,7 +15,7 @@
 // use ascii_table::{print_table, Align, ColumnConfig, TableConfig};
 use failure::{Error, ResultExt};
 // use log::debug;
-use number_prefix::{NumberPrefix, Prefixed, Standalone};
+use number_prefix::NumberPrefix;
 use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::path::{Path, PathBuf};
@@ -61,8 +61,8 @@ fn get_dir_size_lossy(path: &Path) -> String {
         .sum();
 
     match NumberPrefix::binary(size as f64) {
-        Standalone(bytes) => format!("{} bytes", bytes),
-        Prefixed(prefix, n) => format!("{:.0} {}B", n, prefix),
+        NumberPrefix::Standalone(bytes) => format!("{} bytes", bytes),
+        NumberPrefix::Prefixed(prefix, n) => format!("{:.0} {}B", n, prefix),
     }
 }
 
