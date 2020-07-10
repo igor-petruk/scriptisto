@@ -45,7 +45,7 @@ serde_yaml='0.8'
 md5="0"
 ascii_table="2.0"
 scrawl="=1.0.0"
-users="0.9"
+users="0.10"
 walkdir="2"
 number_prefix="0.3"
 
