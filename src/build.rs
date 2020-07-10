@@ -21,6 +21,8 @@ use crate::cfg;
 use crate::common;
 use crate::opt;
 
+const SCRIPTISTO_SOURCE_VAR: &str = "SCRIPTISTO_SOURCE";
+
 fn docker_prefix(script_cache_path: &Path) -> Result<String, Error> {
     Ok(format!(
         "scriptisto-{}-{:x}",
@@ -80,6 +82,7 @@ fn docker_volume_cmd(
 
 fn run_build_command<F>(
     cfg: &cfg::BuildSpec,
+    script_path: &Path,
     script_cache_path: &Path,
     first_run: bool,
     build_mode: opt::BuildMode,
@@ -147,7 +150,14 @@ where
 
                 // Build binary in Docker.
                 let mut cmd = Command::new("docker");
-                cmd.arg("run").arg("-t").arg("--rm");
+                cmd.arg("run").arg("-t").arg("--rm").arg("--env").arg(
+                    format!(
+                        "{}={}",
+                        SCRIPTISTO_SOURCE_VAR,
+                        &script_path.to_string_lossy()
+                    )
+                    .to_string(),
+                );
 
                 if let Some(src_mount_dir) = &docker_build.src_mount_dir {
                     cmd.arg("-v")
@@ -180,10 +190,12 @@ where
                     stderr_mode(),
                 )?;
             }
-
+            // Non-Docker build.
             _ => {
                 let mut cmd = Command::new("/bin/sh");
-                cmd.arg("-c").arg(build_cmd);
+                cmd.arg("-c")
+                    .arg(build_cmd)
+                    .env(SCRIPTISTO_SOURCE_VAR, &script_path);
 
                 common::run_command(&script_cache_path, cmd, stderr_mode())?;
             }
@@ -235,13 +247,22 @@ pub fn perform(
             )?;
         }
 
-        run_build_command(&cfg, &script_cache_path, first_run, build_mode, || {
-            if show_logs {
-                Stdio::inherit()
-            } else {
-                Stdio::piped()
-            }
-        })?;
+        run_build_command(
+            &cfg,
+            &script_path
+                .canonicalize()
+                .context(format!("Cannot canonicalize path: {:?}", script_path))?,
+            &script_cache_path,
+            first_run,
+            build_mode,
+            || {
+                if show_logs {
+                    Stdio::inherit()
+                } else {
+                    Stdio::piped()
+                }
+            },
+        )?;
     }
 
     Ok((cfg, script_cache_path))
