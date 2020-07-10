@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ascii_table::{print_table, Align, ColumnConfig, TableConfig};
 use failure::{format_err, Error, ResultExt};
 use include_dir::Dir;
 use log::debug;
@@ -149,30 +148,21 @@ fn get_custom_templates() -> Result<TemplateMap, Error> {
     Ok(templates)
 }
 
-fn table_config() -> TableConfig {
-    let mut config = TableConfig::default();
-    config.columns.insert(
-        0,
-        ColumnConfig {
-            align: Align::Left,
-            header: "Template Name".into(),
-        },
-    );
-    config.columns.insert(
-        1,
-        ColumnConfig {
-            align: Align::Left,
-            header: "Custom".into(),
-        },
-    );
-    config.columns.insert(
-        2,
-        ColumnConfig {
-            align: Align::Left,
-            header: "Extension".into(),
-        },
-    );
-    config
+fn build_ascii_table() -> ascii_table::AsciiTable {
+    let mut table = ascii_table::AsciiTable::default();
+    let mut column = ascii_table::Column::with_header("Template Name");
+    column.align = ascii_table::Align::Left;
+    table.columns.insert(0, column);
+
+    let mut column = ascii_table::Column::with_header("Custom");
+    column.align = ascii_table::Align::Left;
+    table.columns.insert(1, column);
+
+    let mut column = ascii_table::Column::with_header("Extension");
+    column.align = ascii_table::Align::Left;
+    table.columns.insert(2, column);
+
+    table
 }
 
 fn get_templates() -> Result<TemplateMap, Error> {
@@ -204,7 +194,7 @@ fn print_templates(templates: &TemplateMap) {
         })
         .collect();
 
-    print_table(table, &table_config());
+    build_ascii_table().print(table);
 }
 
 fn template_not_found(name: &str, templates: &TemplateMap) -> ! {
