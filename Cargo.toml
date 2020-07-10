@@ -34,7 +34,7 @@ buildflags = ["--release"]
 scriptisto = { path = "/usr/bin/scriptisto" }
 
 [dependencies]
-dirs = '2.0'
+dirs = '3.0'
 exec = '0.3'
 failure = '0.1'
 include_dir = '0.4'
