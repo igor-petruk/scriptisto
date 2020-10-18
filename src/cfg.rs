@@ -65,11 +65,10 @@ impl BuildSpec {
 
         use ParserState::*;
         let mut state = ParserState::ScriptSource;
-        let mut line_num = 0;
 
         let mut cfg_src = vec![];
 
-        for line in reader.lines() {
+        for (line_num, line) in reader.lines().enumerate() {
             let mut line = line.context(format!("Cannot parse script line: {}", line_num))?;
             script_src.push(line.clone());
             let old_state = state.clone();
@@ -92,7 +91,6 @@ impl BuildSpec {
                     }
                 }
             };
-            line_num += 1;
         }
 
         let mut build_spec: BuildSpec = serde_yaml::from_str(&cfg_src.join("\n"))
