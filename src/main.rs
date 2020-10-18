@@ -17,7 +17,7 @@ extern crate include_dir;
 
 use failure::{format_err, Error};
 use log::debug;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::str::FromStr;
 
@@ -83,7 +83,8 @@ fn main_err() -> Result<(), Error> {
             let script_src = opts.script_src.ok_or_else(|| {
                 format_err!("PROBABLY A BUG: script_src must be non-empty if no subcommand found.")
             })?;
-            default_main(&script_src, &opts.args)
+            let script_src = common::script_src_to_absolute(Path::new(&script_src))?;
+            default_main(&script_src.to_string_lossy(), &opts.args)
         }
         Some(opt::Command::Cache { cmd }) => cache::command_cache(cmd),
         Some(opt::Command::New { template_name }) => templates::command_new(template_name),

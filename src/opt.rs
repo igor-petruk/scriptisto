@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::common;
 use failure::format_err;
 use log::debug;
+use std::path::Path;
 use std::str::FromStr;
 use structopt::StructOpt;
 
@@ -103,52 +105,24 @@ fn display_help() {
 }
 
 pub fn from_args(args: &[String]) -> Opt {
+    let mut args_iter = args.iter();
+    args_iter.next(); // Skip self.
+
+    if let Some(potential_script_src) = args_iter.next() {
+        if common::script_src_to_absolute(Path::new(&potential_script_src)).is_ok() {
+            return Opt {
+                script_src: Some(potential_script_src.clone()),
+                args: args_iter.cloned().collect(),
+                cmd: None,
+            };
+        }
+    }
+
     let opts = Opt::from_iter(args.iter());
+    debug!("Parsed command line options: {:#?}", opts);
 
     if opts.cmd.is_none() && opts.script_src.is_none() {
         display_help();
     };
-    debug!("Parsed command line options: {:#?}", opts);
     opts
-}
-
-// Need to extend these tests with covering early exits.
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn args(slice: &[&str]) -> Vec<String> {
-        let mut v = vec!["scriptisto".to_string()];
-        v.extend(slice.iter().map(|s| s.to_string()));
-        v
-    }
-
-    #[test]
-    fn test_script_args() {
-        // Includes a normal arg and an arg from a subcommand.
-        let opts = from_args(&args(&vec!["./foo", "arg", "new"]));
-        assert_eq!(
-            opts,
-            Opt {
-                script_src: Some(String::from("./foo")),
-                args: vec!["arg".into(), "new".into()],
-                cmd: None,
-            }
-        );
-    }
-
-    #[test]
-    fn test_new() {
-        let opts = from_args(&args(&vec!["new", "rust"]));
-        assert_eq!(
-            opts,
-            Opt {
-                script_src: None,
-                args: vec![],
-                cmd: Some(Command::New {
-                    template_name: Some("rust".into()),
-                }),
-            }
-        );
-    }
 }
