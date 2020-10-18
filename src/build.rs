@@ -250,9 +250,7 @@ pub fn perform(
 
         run_build_command(
             &cfg,
-            &script_path
-                .canonicalize()
-                .context(format!("Cannot canonicalize path: {:?}", script_path))?,
+            &common::script_src_to_absolute(&script_path)?,
             &script_cache_path,
             first_run,
             build_mode,

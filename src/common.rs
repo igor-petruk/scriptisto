@@ -19,10 +19,19 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
+pub fn script_src_to_absolute(script_src: &Path) -> Result<PathBuf, Error> {
+    let script_path = pathsearch::find_executable_in_path(&script_src);
+    match script_path {
+        Some(script_path) => Ok(script_path.canonicalize()?),
+        None => Err(failure::format_err!(
+            "{:?} is not found or not executable",
+            script_src
+        )),
+    }
+}
+
 pub fn build_cache_path(script_path: &Path) -> Result<PathBuf, Error> {
-    let script_path = script_path
-        .canonicalize()
-        .context("Cannot build full path from given script path")?;
+    let script_path = script_src_to_absolute(script_path)?;
     let script_path_rel = script_path
         .strip_prefix("/")
         .context(format!("Could not strip '/' prefix from {:?}", script_path))?;

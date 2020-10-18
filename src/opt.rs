@@ -103,35 +103,10 @@ fn display_help() {
 }
 
 pub fn from_args(args: &[String]) -> Opt {
-    let mut args_iter = args.iter();
-    args_iter.next(); // Skip self
+    let opts = Opt::from_iter(args.iter());
 
-    let opts = match args_iter.next() {
-        None => {
-            display_help();
-            unreachable!();
-        }
-        Some(ref script_src) if script_src.starts_with('.') || script_src.starts_with('/') => {
-            // Do not use structopt, because it will try to recognize subcommands in all args.
-            let extra_args: Vec<_> = args_iter.cloned().collect();
-            Opt {
-                script_src: Some((*script_src).to_string()),
-                args: extra_args,
-                cmd: None,
-            }
-        }
-        _ => match Opt::from_iter(args.iter()) {
-            ref opts if opts.script_src.is_some() => {
-                // Sublte case when the first argument is so different from any subcommand
-                // that autosuggestion does not kick in an it's value ends up in script_src.
-                // We have manually checked for a valid script_src in a differen branch, so
-                // basically this is strongly misspelled subcommand.
-                // I could not figure out how to avoid this via structopt validators.
-                display_help();
-                unreachable!();
-            }
-            opts => opts,
-        },
+    if opts.cmd.is_none() && opts.script_src.is_none() {
+        display_help();
     };
     debug!("Parsed command line options: {:#?}", opts);
     opts
