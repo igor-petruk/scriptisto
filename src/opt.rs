@@ -112,7 +112,7 @@ pub fn from_args(args: &[String]) -> Opt {
 
     if self_file_name != "scriptisto" {
             return Opt {
-                script_src: Some(self_path.clone().to_string_lossy().into()),
+                script_src: Some(self_path.to_string_lossy().into()),
                 args: args_iter.cloned().collect(),
                 cmd: None,
             };
