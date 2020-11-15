@@ -23,10 +23,7 @@ pub fn script_src_to_absolute(script_src: &Path) -> Result<PathBuf, Error> {
     let script_path = pathsearch::find_executable_in_path(&script_src);
     match script_path {
         Some(script_path) => Ok(script_path.canonicalize()?),
-        None => Err(failure::format_err!(
-            "{:?} is not found or not executable",
-            script_src
-        )),
+        None => Ok(script_src.canonicalize()?),
     }
 }
 
