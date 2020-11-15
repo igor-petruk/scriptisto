@@ -32,6 +32,8 @@ pub struct BuildSpec {
     pub files: Vec<File>,
     #[serde(default)]
     pub docker_build: Option<DockerBuild>,
+    #[serde(default)]
+    pub hash_additional_paths: Vec<String>, // paths to directory/file, no wildcards supported
 }
 
 fn default_target_bin() -> String {

@@ -17,6 +17,7 @@ extern crate include_dir;
 
 use failure::{format_err, Error};
 use log::debug;
+use std::env;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::str::FromStr;
@@ -35,7 +36,7 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
 
     let (cfg, script_cache_path) = build::perform(build_mode, &script_path, show_logs)?;
 
-    let mut full_target_bin = script_cache_path;
+    let mut full_target_bin = script_cache_path.clone();
     full_target_bin.push(PathBuf::from(cfg.target_bin));
     let full_target_bin = full_target_bin
         .canonicalize()?
@@ -63,6 +64,9 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
     // args.drain(..2);
     target_argv.extend_from_slice(args);
     debug!("Running exec {:?}, Args: {:?}", binary, target_argv);
+
+    // Scripts can use this to find other build artifacts
+    env::set_var("SCRIPTISTO_CACHE_DIR", script_cache_path);
 
     let error = match exec::execvp(&binary, &target_argv) {
         exec::Error::Errno(e) => {

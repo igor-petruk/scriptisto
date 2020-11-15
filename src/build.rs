@@ -234,8 +234,73 @@ pub fn perform(
     let metadata_modified = common::file_modified(&metadata_path).ok();
     let script_modified = common::file_modified(&script_path).ok();
 
+    // If source file is older than metadata file, also hash other paths. Those could be additional
+    // inputs for the build, for example, which must be considered for triggering a rebuild.
+    let mut additional_paths_max_modified: Option<std::time::SystemTime> = None;
+    if metadata_modified > script_modified {
+        let full_script_path = script_path
+            .canonicalize()
+            .context("Cannot build full path from given script path")?;
+        let script_dir = full_script_path
+            .parent()
+            .expect("script_src has no parent directory");
+
+        let mut num_additional_paths_scanned = 0;
+        for additional_path in cfg.hash_additional_paths.iter() {
+            let mut full_additional_path = PathBuf::from(additional_path);
+            if !full_additional_path.is_absolute() {
+                full_additional_path = script_dir.join(additional_path);
+            }
+
+            debug!("Hashing additional path {:?}", full_additional_path);
+
+            for entry_res in walkdir::WalkDir::new(&full_additional_path)
+                .follow_links(true)
+                .into_iter()
+            {
+                debug!("Checking directory entry {:?}", entry_res);
+                if entry_res.is_err() {
+                    continue;
+                }
+                let entry = entry_res.as_ref().unwrap();
+
+                let metadata_res = entry.metadata();
+                if metadata_res.is_ok() && metadata_res.as_ref().unwrap().is_file() {
+                    num_additional_paths_scanned += 1;
+                    if num_additional_paths_scanned > 500000 {
+                        panic!("Too many files scanned");
+                    }
+                    let modified_res = metadata_res.as_ref().unwrap().modified();
+                    if modified_res.is_ok()
+                        && (additional_paths_max_modified.is_none()
+                            || *modified_res.as_ref().unwrap()
+                                > additional_paths_max_modified.unwrap())
+                    {
+                        additional_paths_max_modified = Some(*modified_res.as_ref().unwrap());
+
+                        if metadata_modified <= additional_paths_max_modified {
+                            debug!(
+                                "File {:?} is newer than metadata, causing rebuild",
+                                entry.path()
+                            );
+                            break;
+                        }
+                    } else if modified_res.is_err() {
+                        debug!("Cannot get modification time of {:?}", entry.path());
+                    }
+                }
+            }
+
+            if metadata_modified <= additional_paths_max_modified {
+                break;
+            }
+        }
+    }
+
     let first_run = metadata_modified.is_none();
-    let skip_rebuild = metadata_modified > script_modified && build_mode == opt::BuildMode::Default;
+    let skip_rebuild = metadata_modified > script_modified
+        && metadata_modified > additional_paths_max_modified
+        && build_mode == opt::BuildMode::Default;
 
     if skip_rebuild {
         debug!("Already compiled, skipping compilation");
