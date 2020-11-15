@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::common;
 use failure::format_err;
 use log::debug;
 use std::path::Path;
@@ -105,17 +106,19 @@ fn display_help() {
 
 pub fn from_args(args: &[String]) -> Opt {
     let mut args_iter = args.iter();
-    let self_path = Path::new(args_iter.next().expect("Args must always have element 0"));
-    let self_file_name = self_path.file_name().expect("Expect normal path ending with filename");
+    args_iter.next();
 
-    debug!("self_path={:?}, self_file_name={:?}", self_path, self_file_name);
-
-    if self_file_name != "scriptisto" {
-            return Opt {
-                script_src: Some(self_path.to_string_lossy().into()),
-                args: args_iter.cloned().collect(),
-                cmd: None,
-            };
+    if let Some(script_src) = args_iter.next() {
+        let absolute_script_src = common::script_src_to_absolute(Path::new(&script_src));
+        if let Ok(absolute_script_src) = absolute_script_src {
+            if absolute_script_src.exists() {
+                return Opt {
+                    script_src: Some(absolute_script_src.to_string_lossy().into()),
+                    args: args_iter.cloned().collect(),
+                    cmd: None,
+                };
+            }
+        }
     }
 
     let opts = Opt::from_iter(args.iter());
