@@ -43,7 +43,7 @@ $ ./script.c
 Hello, C! Current user: username
 ```
 
-*Note:* Some templates such as `rust` take more time to build for the first time. The default behaviour is to supress build logs, so do not be discouraged that you do not immediately see any output.
+**Note:** some templates such as `rust` take more time to build during the first time. The default behaviour is to supress the build logs, so do not be discouraged that you do not immediately see any output. More info in the [wiki](https://github.com/igor-petruk/scriptisto/wiki/Running-scripts#build-logs).
 
 ## Installation
 
