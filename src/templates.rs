@@ -24,7 +24,7 @@ use structopt::StructOpt;
 
 const TEMPLATES: Dir = include_dir!("./data/templates/");
 
-#[derive(Debug, StructOpt, PartialEq)]
+#[derive(Debug, StructOpt, PartialEq, Eq)]
 pub enum Command {
     /// Imports a template from file.
     Import {
@@ -49,7 +49,7 @@ pub enum Command {
     List {},
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 enum Source {
     BuiltIn,
     Custom,
@@ -200,7 +200,7 @@ fn print_templates(templates: &TemplateMap) {
 fn template_not_found(name: &str, templates: &TemplateMap) -> ! {
     println!("Template '{}' is not found!", name);
     println!("Available templates in the table below:");
-    print_templates(&templates);
+    print_templates(templates);
     std::process::exit(1);
 }
 
@@ -249,7 +249,7 @@ pub fn edit(initial_value: &str, filename: &str) -> Result<(), Error> {
 }
 
 pub fn command_template_import(path: &Path) -> Result<(), Error> {
-    let file_name = path_to_file_name(&path)?;
+    let file_name = path_to_file_name(path)?;
     let templates = get_templates()?;
     let template_name = filename_to_template_name(path)?;
 

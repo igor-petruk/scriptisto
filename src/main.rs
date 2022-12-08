@@ -33,7 +33,7 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
     let build_mode = opt::BuildMode::from_str(&build_mode_env.to_string_lossy())?;
     let show_logs = std::env::var_os("SCRIPTISTO_BUILD_LOGS").is_some();
 
-    let (cfg, script_cache_path) = build::perform(build_mode, &script_path, show_logs)?;
+    let (cfg, script_cache_path) = build::perform(build_mode, script_path, show_logs)?;
 
     let mut full_target_bin = script_cache_path;
     full_target_bin.push(PathBuf::from(cfg.target_bin));

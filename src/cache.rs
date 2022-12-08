@@ -24,7 +24,7 @@ use structopt::StructOpt;
 
 use crate::*;
 
-#[derive(Debug, StructOpt, PartialEq)]
+#[derive(Debug, StructOpt, PartialEq, Eq)]
 pub enum Command {
     /// Shows information about the cache directory for the script.
     Info {
@@ -52,7 +52,7 @@ fn print_item(name: &str, value: &str) {
 }
 
 fn get_dir_size_lossy(path: &Path) -> String {
-    let size: u64 = walkdir::WalkDir::new(&path)
+    let size: u64 = walkdir::WalkDir::new(path)
         .into_iter()
         .map(|r| {
             r.map(|e| e.metadata().map(|m| m.len()).unwrap_or_default())
@@ -67,7 +67,7 @@ fn get_dir_size_lossy(path: &Path) -> String {
 }
 
 fn collect_info(script_path: &Path) -> Result<BTreeMap<String, String>, Error> {
-    let script_body = std::fs::read(&script_path).context("Cannot read script file")?;
+    let script_body = std::fs::read(script_path).context("Cannot read script file")?;
     let script_cache_path = common::build_cache_path(script_path).context(format!(
         "Cannot build cache path for script: {:?}",
         script_path
@@ -97,7 +97,7 @@ fn collect_info(script_path: &Path) -> Result<BTreeMap<String, String>, Error> {
 }
 
 pub fn command_get(name: &str, script_path: &Path) -> Result<(), Error> {
-    let items = collect_info(&script_path)?;
+    let items = collect_info(script_path)?;
 
     if let Some(value) = items.get(name) {
         println!("{}", value);
@@ -112,30 +112,30 @@ pub fn command_get(name: &str, script_path: &Path) -> Result<(), Error> {
 }
 
 pub fn command_info(script_path: &Path) -> Result<(), Error> {
-    let items = collect_info(&script_path)?;
+    let items = collect_info(script_path)?;
 
     for (k, v) in items.iter() {
-        print_item(k, &v);
+        print_item(k, v);
     }
 
     Ok(())
 }
 
 pub fn command_clean(script_path: &Path) -> Result<(), Error> {
-    let items = collect_info(&script_path)?;
+    let items = collect_info(script_path)?;
     let cache_path = items.get("cache_path").expect("cache_path to exist");
 
     let _ = std::fs::remove_dir_all(cache_path);
 
     if let Some(docker_image) = items.get("docker_image") {
         let mut cmd = process::Command::new("docker");
-        cmd.arg("image").arg("rm").arg(&docker_image);
+        cmd.arg("image").arg("rm").arg(docker_image);
         let _ = common::run_command(&PathBuf::from("/"), cmd, process::Stdio::piped());
     }
 
     if let Some(docker_volume) = items.get("docker_src_volume") {
         let mut cmd = process::Command::new("docker");
-        cmd.arg("volume").arg("rm").arg(&docker_volume);
+        cmd.arg("volume").arg("rm").arg(docker_volume);
         let _ = common::run_command(&PathBuf::from("/"), cmd, process::Stdio::piped());
     }
 

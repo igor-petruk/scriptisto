@@ -19,7 +19,7 @@ use std::path::Path;
 use std::str::FromStr;
 use structopt::StructOpt;
 
-#[derive(Debug, PartialEq, StructOpt)]
+#[derive(Debug, PartialEq, Eq, StructOpt)]
 #[structopt(rename_all = "snake-case")]
 pub enum BuildMode {
     Default,
@@ -51,7 +51,7 @@ impl FromStr for BuildMode {
     }
 }
 
-#[derive(Debug, StructOpt, PartialEq)]
+#[derive(Debug, StructOpt, PartialEq, Eq)]
 #[structopt(
     name = "scriptisto",
     about = "A 'shebang-interpreter' for compiled languages"
@@ -69,7 +69,7 @@ pub struct Opt {
     pub cmd: Option<Command>,
 }
 
-#[derive(Debug, StructOpt, PartialEq)]
+#[derive(Debug, StructOpt, PartialEq, Eq)]
 pub enum Command {
     /// Build cache operations.
     Cache {

@@ -49,8 +49,8 @@ fn docker_create_volume(
     stderr_mode: Stdio,
 ) -> Result<(), Error> {
     let mut build_vol_cmd = Command::new("docker");
-    build_vol_cmd.arg("volume").arg("create").arg(&volume_name);
-    common::run_command(&script_cache_path, build_vol_cmd, stderr_mode)?;
+    build_vol_cmd.arg("volume").arg("create").arg(volume_name);
+    common::run_command(script_cache_path, build_vol_cmd, stderr_mode)?;
     Ok(())
 }
 
@@ -62,11 +62,11 @@ fn docker_volume_cmd(
     stderr_mode: Stdio,
 ) -> Result<(), Error> {
     let mut vol_cmd = Command::new("docker");
-    vol_cmd.args(&["run", "-t", "--rm"]);
+    vol_cmd.args(["run", "-t", "--rm"]);
     if run_as_current_user {
-        vol_cmd.args(&["-u", &format!("{}", users::get_current_uid())]);
+        vol_cmd.args(["-u", &format!("{}", users::get_current_uid())]);
     }
-    vol_cmd.args(&[
+    vol_cmd.args([
         "-v",
         &format!("{}:/vol", &volume_name),
         "-v",
@@ -76,7 +76,7 @@ fn docker_volume_cmd(
         "-c",
         cmd,
     ]);
-    common::run_command(&script_cache_path, vol_cmd, stderr_mode)?;
+    common::run_command(script_cache_path, vol_cmd, stderr_mode)?;
     Ok(())
 }
 
@@ -95,7 +95,7 @@ where
         if let Some(build_once_cmd) = &cfg.build_once_cmd {
             let mut cmd = Command::new("/bin/sh");
             cmd.arg("-c").arg(build_once_cmd);
-            common::run_command(&script_cache_path, cmd, stderr_mode())?;
+            common::run_command(script_cache_path, cmd, stderr_mode())?;
         }
     }
 
@@ -106,7 +106,7 @@ where
                 // Write Dockerfile.
                 let tmp_dockerfile_name = "Dockerfile.scriptisto";
                 common::write_bytes(
-                    &script_cache_path,
+                    script_cache_path,
                     &PathBuf::from(&tmp_dockerfile_name),
                     docker_build.dockerfile.clone().unwrap().as_bytes(),
                 )?;
@@ -114,11 +114,11 @@ where
                 // Create and populate sources volume.
                 let src_docker_volume = docker_volume_name(script_cache_path)?;
 
-                docker_create_volume(&src_docker_volume, &script_cache_path, stderr_mode())?;
+                docker_create_volume(&src_docker_volume, script_cache_path, stderr_mode())?;
 
                 docker_volume_cmd(
                     &src_docker_volume,
-                    &script_cache_path,
+                    script_cache_path,
                     false,
                     "cp -rf /src/* /vol/",
                     stderr_mode(),
@@ -143,10 +143,10 @@ where
                         script_cache_path.to_string_lossy()
                     ))
                     .arg("-f")
-                    .arg(&tmp_dockerfile_name)
+                    .arg(tmp_dockerfile_name)
                     .arg(".");
 
-                common::run_command(&script_cache_path, build_im_cmd, stderr_mode())?;
+                common::run_command(script_cache_path, build_im_cmd, stderr_mode())?;
 
                 // Build binary in Docker.
                 let mut cmd = Command::new("docker");
@@ -171,7 +171,7 @@ where
                     .arg("-c")
                     .arg(build_cmd);
 
-                common::run_command(&script_cache_path, cmd, stderr_mode())?;
+                common::run_command(script_cache_path, cmd, stderr_mode())?;
 
                 // Extract target_bin back to host.
                 let mut vol_path = PathBuf::from("/vol");
@@ -180,7 +180,7 @@ where
                 src_path.push(&cfg.target_bin);
                 docker_volume_cmd(
                     &src_docker_volume,
-                    &script_cache_path,
+                    script_cache_path,
                     true,
                     &format!(
                         "mkdir -p $(dirname {}) && cp -rf {} {}",
@@ -196,15 +196,15 @@ where
                 let mut cmd = Command::new("/bin/sh");
                 cmd.arg("-c")
                     .arg(build_cmd)
-                    .env(SCRIPTISTO_SOURCE_VAR, &script_path);
+                    .env(SCRIPTISTO_SOURCE_VAR, script_path);
 
-                common::run_command(&script_cache_path, cmd, stderr_mode())?;
+                common::run_command(script_cache_path, cmd, stderr_mode())?;
             }
         }
     }
 
     common::write_bytes(
-        &script_cache_path,
+        script_cache_path,
         &PathBuf::from("scriptisto.metadata"),
         String::new().as_bytes(),
     )
@@ -220,7 +220,7 @@ pub fn perform(
 ) -> Result<(cfg::BuildSpec, PathBuf), Error> {
     let script_path = Path::new(script_path);
 
-    let script_body = std::fs::read(&script_path).context("Cannot read script file")?;
+    let script_body = std::fs::read(script_path).context("Cannot read script file")?;
     let script_cache_path = common::build_cache_path(script_path).context(format!(
         "Cannot build cache path for script: {:?}",
         script_path
@@ -232,7 +232,7 @@ pub fn perform(
     let mut metadata_path = script_cache_path.clone();
     metadata_path.push("scriptisto.metadata");
     let metadata_modified = common::file_modified(&metadata_path).ok();
-    let script_modified = common::file_modified(&script_path).ok();
+    let script_modified = common::file_modified(script_path).ok();
 
     let first_run = metadata_modified.is_none();
     let skip_rebuild = metadata_modified > script_modified && build_mode == opt::BuildMode::Default;
@@ -244,13 +244,13 @@ pub fn perform(
             common::write_bytes(
                 &script_cache_path,
                 &PathBuf::from(&file.path),
-                &file.content.as_bytes(),
+                file.content.as_bytes(),
             )?;
         }
 
         run_build_command(
             &cfg,
-            &common::script_src_to_absolute(&script_path)?,
+            &common::script_src_to_absolute(script_path)?,
             &script_cache_path,
             first_run,
             build_mode,
