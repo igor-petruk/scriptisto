@@ -150,18 +150,18 @@ fn get_custom_templates() -> Result<TemplateMap, Error> {
 
 fn build_ascii_table() -> ascii_table::AsciiTable {
     let mut table = ascii_table::AsciiTable::default();
-    let mut column = ascii_table::Column::with_header("Template Name");
-    column.align = ascii_table::Align::Left;
-    table.columns.insert(0, column);
-
-    let mut column = ascii_table::Column::with_header("Custom");
-    column.align = ascii_table::Align::Left;
-    table.columns.insert(1, column);
-
-    let mut column = ascii_table::Column::with_header("Extension");
-    column.align = ascii_table::Align::Left;
-    table.columns.insert(2, column);
-
+    table
+        .column(0)
+        .set_header("Template Name")
+        .set_align(ascii_table::Align::Left);
+    table
+        .column(1)
+        .set_header("Custom")
+        .set_align(ascii_table::Align::Left);
+    table
+        .column(2)
+        .set_header("Extension")
+        .set_align(ascii_table::Align::Left);
     table
 }
 
