@@ -43,6 +43,8 @@ $ ./script.c
 Hello, C! Current user: username
 ```
 
+*Note:* Some templates such as `rust` take more time to build for the first time. The default behaviour is to supress build logs, so do not be discouraged that you do not immediately see any output.
+
 ## Installation
 
 Scriptisto is available as a prebuilt statically-linked standalone binary or distrubutions packages at [Releases](https://github.com/igor-petruk/scriptisto/releases) or at [Crates.io](https://crates.io/crates/scriptisto). 
