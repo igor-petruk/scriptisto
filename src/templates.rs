@@ -20,32 +20,32 @@ use std::fmt::Debug;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use structopt::StructOpt;
+use clap::Parser;
 
 const TEMPLATES: Dir = include_dir!("./data/templates/");
 
-#[derive(Debug, StructOpt, PartialEq, Eq)]
+#[derive(Debug, Parser, PartialEq, Eq)]
 pub enum Command {
     /// Imports a template from file.
     Import {
-        #[structopt(
+        #[clap(
             help = "A filename of the script file. Extension will be stripped for the template name."
         )]
         file: PathBuf,
     },
     /// Opens an editor to modify an existing template, nice for quick edits.
     Edit {
-        #[structopt(help = "A name of the template to edit")]
+        #[clap(help = "A name of the template to edit")]
         template_name: String,
     },
     /// Remove a custom template or reset it to the built-in contents.
-    #[structopt(name = "rm", visible_aliases = &["remove", "delete"])]
+    #[clap(name = "rm", visible_aliases = &["remove", "delete"])]
     Remove {
-        #[structopt(help = "A name of the template to remove")]
+        #[clap(help = "A name of the template to remove")]
         template_name: String,
     },
     /// List all templates.
-    #[structopt(name = "ls", visible_alias = "list")]
+    #[clap(name = "ls", visible_alias = "list")]
     List {},
 }
 

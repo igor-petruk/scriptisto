@@ -20,29 +20,29 @@ use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::path::{Path, PathBuf};
 use std::process;
-use structopt::StructOpt;
+use clap::Parser;
 
 use crate::*;
 
-#[derive(Debug, StructOpt, PartialEq, Eq)]
+#[derive(Debug, Parser, PartialEq, Eq)]
 pub enum Command {
     /// Shows information about the cache directory for the script.
     Info {
-        #[structopt(help = "A filename of the script file.")]
+        #[clap(help = "A filename of the script file.")]
         file: PathBuf,
     },
     /// Clean the cache for a particular script. Removes the cache directory. Removes the Docker image/volume if
     /// they exist, but does not prune.
-    #[structopt(visible_alias = "clear")]
+    #[clap(visible_alias = "clear")]
     Clean {
-        #[structopt(help = "A filename of the script file.")]
+        #[clap(help = "A filename of the script file.")]
         file: PathBuf,
     },
     /// Shows a particular item from "info" by name.
     Get {
-        #[structopt(help = "An item name, e.g. cache_path.")]
+        #[clap(help = "An item name, e.g. cache_path.")]
         name: String,
-        #[structopt(help = "A filename of the script file.")]
+        #[clap(help = "A filename of the script file.")]
         file: PathBuf,
     },
 }

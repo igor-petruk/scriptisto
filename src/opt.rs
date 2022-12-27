@@ -17,10 +17,10 @@ use failure::format_err;
 use log::debug;
 use std::path::Path;
 use std::str::FromStr;
-use structopt::StructOpt;
+use clap::{Subcommand,Parser};
 
-#[derive(Debug, PartialEq, Eq, StructOpt)]
-#[structopt(rename_all = "snake-case")]
+#[derive(Debug, PartialEq, Eq, Parser)]
+#[clap(rename_all = "snake-case")]
 pub enum BuildMode {
     Default,
     Source,
@@ -51,51 +51,51 @@ impl FromStr for BuildMode {
     }
 }
 
-#[derive(Debug, StructOpt, PartialEq, Eq)]
-#[structopt(
+#[derive(Debug, Parser, PartialEq, Eq)]
+#[clap(
     name = "scriptisto",
     about = "A 'shebang-interpreter' for compiled languages"
 )]
 pub struct Opt {
     /// A path to a script to run. If specified, first character must be "." or "/".
-    #[structopt()]
+    #[clap()]
     pub script_src: Option<String>,
 
     /// Additional arguments passed to a script.
-    #[structopt()]
+    #[clap()]
     pub args: Vec<String>,
 
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     pub cmd: Option<Command>,
 }
 
-#[derive(Debug, StructOpt, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Subcommand, Eq)]
 pub enum Command {
     /// Build cache operations.
     Cache {
-        #[structopt(subcommand)]
+        #[clap(subcommand)]
         cmd: crate::cache::Command,
     },
     /// Prints an example starting script in a programming language of your
     /// choice.
     New {
-        #[structopt(
+        #[clap(
             help = "If specified, determines a language. Example usage: \"scriptisto new <template_name> | tee new-script\".\nIf not specified, \"new\" lists available templates."
         )]
         template_name: Option<String>,
     },
     /// Manage custom script templates.
     Template {
-        #[structopt(subcommand)]
+        #[clap(subcommand)]
         cmd: crate::templates::Command,
     },
     /// Build a script without running.
     Build {
         /// A path to a script to build.
-        #[structopt()]
+        #[clap()]
         script_src: String,
         /// Build mode. If unset, only builds if necessary. "source" - to rebuild each time. "full" to fully re-fetch Docker image and run `build_once_cmd`.
-        #[structopt(short, long)]
+        #[clap(short, long)]
         build_mode: Option<BuildMode>,
     },
 }
