@@ -13,11 +13,36 @@
 // limitations under the License.
 
 use super::common;
+use clap::{Parser, Subcommand};
 use failure::format_err;
 use log::debug;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
-use clap::{Subcommand,Parser};
+
+#[derive(Debug, Parser, PartialEq, Eq)]
+pub enum TemplatesCommand {
+    /// Imports a template from file.
+    Import {
+        #[clap(
+            help = "A filename of the script file. Extension will be stripped for the template name."
+        )]
+        file: PathBuf,
+    },
+    /// Opens an editor to modify an existing template, nice for quick edits.
+    Edit {
+        #[clap(help = "A name of the template to edit")]
+        template_name: String,
+    },
+    /// Remove a custom template or reset it to the built-in contents.
+    #[clap(name = "rm", visible_aliases = &["remove", "delete"])]
+    Remove {
+        #[clap(help = "A name of the template to remove")]
+        template_name: String,
+    },
+    /// List all templates.
+    #[clap(name = "ls", visible_alias = "list")]
+    List {},
+}
 
 #[derive(Debug, PartialEq, Eq, Parser)]
 #[clap(rename_all = "snake-case")]
@@ -87,7 +112,7 @@ pub enum Command {
     /// Manage custom script templates.
     Template {
         #[clap(subcommand)]
-        cmd: crate::templates::Command,
+        cmd: TemplatesCommand,
     },
     /// Build a script without running.
     Build {

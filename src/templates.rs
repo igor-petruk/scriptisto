@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::opt::TemplatesCommand;
 use failure::{format_err, Error, ResultExt};
 use include_dir::Dir;
 use log::debug;
@@ -20,34 +21,8 @@ use std::fmt::Debug;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use clap::Parser;
 
 const TEMPLATES: Dir = include_dir!("./data/templates/");
-
-#[derive(Debug, Parser, PartialEq, Eq)]
-pub enum Command {
-    /// Imports a template from file.
-    Import {
-        #[clap(
-            help = "A filename of the script file. Extension will be stripped for the template name."
-        )]
-        file: PathBuf,
-    },
-    /// Opens an editor to modify an existing template, nice for quick edits.
-    Edit {
-        #[clap(help = "A name of the template to edit")]
-        template_name: String,
-    },
-    /// Remove a custom template or reset it to the built-in contents.
-    #[clap(name = "rm", visible_aliases = &["remove", "delete"])]
-    Remove {
-        #[clap(help = "A name of the template to remove")]
-        template_name: String,
-    },
-    /// List all templates.
-    #[clap(name = "ls", visible_alias = "list")]
-    List {},
-}
 
 #[derive(Debug, PartialEq, Eq)]
 enum Source {
@@ -311,16 +286,16 @@ pub fn command_template_rm(template_name: String) -> Result<(), Error> {
     }
 }
 
-pub fn command_template(cmd: Command) -> Result<(), Error> {
+pub fn command_template(cmd: TemplatesCommand) -> Result<(), Error> {
     let templates = get_templates()?;
 
     match cmd {
-        Command::List {} => {
+        TemplatesCommand::List {} => {
             print_templates(&templates);
             Ok(())
         }
-        Command::Import { file } => command_template_import(&file),
-        Command::Edit { template_name } => command_template_edit(template_name),
-        Command::Remove { template_name } => command_template_rm(template_name),
+        TemplatesCommand::Import { file } => command_template_import(&file),
+        TemplatesCommand::Edit { template_name } => command_template_edit(template_name),
+        TemplatesCommand::Remove { template_name } => command_template_rm(template_name),
     }
 }
