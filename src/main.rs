@@ -15,6 +15,7 @@
 #[macro_use]
 extern crate include_dir;
 
+use clap::Parser;
 use failure::{format_err, Error};
 use log::debug;
 use std::path::{Path, PathBuf};
@@ -27,6 +28,32 @@ mod cfg;
 mod common;
 mod opt;
 mod templates;
+
+pub fn opt_from_args(args: &[String]) -> opt::Opt {
+    let mut args_iter = args.iter();
+    args_iter.next();
+
+    if let Some(script_src) = args_iter.next() {
+        let absolute_script_src = common::script_src_to_absolute(Path::new(&script_src));
+        if let Ok(absolute_script_src) = absolute_script_src {
+            if absolute_script_src.exists() {
+                return opt::Opt {
+                    script_src: Some(absolute_script_src.to_string_lossy().into()),
+                    args: args_iter.cloned().collect(),
+                    cmd: None,
+                };
+            }
+        }
+    }
+
+    let opts = opt::Opt::from_iter(args.iter());
+    debug!("Parsed command line options: {:#?}", opts);
+
+    if opts.cmd.is_none() && opts.script_src.is_none() {
+        opt::display_help();
+    };
+    opts
+}
 
 fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
     let build_mode_env = std::env::var_os("SCRIPTISTO_BUILD").unwrap_or_default();
@@ -75,7 +102,7 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
 
 fn main_err() -> Result<(), Error> {
     let args: Vec<String> = std::env::args().collect();
-    let opts = opt::from_args(&args);
+    let opts = opt_from_args(&args);
     debug!("Parsed options: {:?}", opts);
 
     match opts.cmd {

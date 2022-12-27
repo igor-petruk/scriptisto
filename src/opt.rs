@@ -12,12 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::common;
 use clap::{Parser, Subcommand};
 use failure::format_err;
-use log::debug;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::str::FromStr;
+
+#[derive(Debug, Parser, PartialEq, Eq)]
+pub enum CacheCommand {
+    /// Shows information about the cache directory for the script.
+    Info {
+        #[clap(help = "A filename of the script file.")]
+        file: PathBuf,
+    },
+    /// Clean the cache for a particular script. Removes the cache directory. Removes the Docker image/volume if
+    /// they exist, but does not prune.
+    #[clap(visible_alias = "clear")]
+    Clean {
+        #[clap(help = "A filename of the script file.")]
+        file: PathBuf,
+    },
+    /// Shows a particular item from "info" by name.
+    Get {
+        #[clap(help = "An item name, e.g. cache_path.")]
+        name: String,
+        #[clap(help = "A filename of the script file.")]
+        file: PathBuf,
+    },
+}
 
 #[derive(Debug, Parser, PartialEq, Eq)]
 pub enum TemplatesCommand {
@@ -99,7 +120,7 @@ pub enum Command {
     /// Build cache operations.
     Cache {
         #[clap(subcommand)]
-        cmd: crate::cache::Command,
+        cmd: CacheCommand,
     },
     /// Prints an example starting script in a programming language of your
     /// choice.
@@ -125,32 +146,6 @@ pub enum Command {
     },
 }
 
-fn display_help() {
+pub fn display_help() {
     Opt::from_iter(vec!["", "help"]);
-}
-
-pub fn from_args(args: &[String]) -> Opt {
-    let mut args_iter = args.iter();
-    args_iter.next();
-
-    if let Some(script_src) = args_iter.next() {
-        let absolute_script_src = common::script_src_to_absolute(Path::new(&script_src));
-        if let Ok(absolute_script_src) = absolute_script_src {
-            if absolute_script_src.exists() {
-                return Opt {
-                    script_src: Some(absolute_script_src.to_string_lossy().into()),
-                    args: args_iter.cloned().collect(),
-                    cmd: None,
-                };
-            }
-        }
-    }
-
-    let opts = Opt::from_iter(args.iter());
-    debug!("Parsed command line options: {:#?}", opts);
-
-    if opts.cmd.is_none() && opts.script_src.is_none() {
-        display_help();
-    };
-    opts
 }

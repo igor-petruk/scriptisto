@@ -12,40 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// use ascii_table::{print_table, Align, ColumnConfig, TableConfig};
+use crate::opt::CacheCommand;
 use failure::{Error, ResultExt};
-// use log::debug;
 use number_prefix::NumberPrefix;
 use std::collections::BTreeMap;
-use std::fmt::Debug;
 use std::path::{Path, PathBuf};
 use std::process;
-use clap::Parser;
 
 use crate::*;
-
-#[derive(Debug, Parser, PartialEq, Eq)]
-pub enum Command {
-    /// Shows information about the cache directory for the script.
-    Info {
-        #[clap(help = "A filename of the script file.")]
-        file: PathBuf,
-    },
-    /// Clean the cache for a particular script. Removes the cache directory. Removes the Docker image/volume if
-    /// they exist, but does not prune.
-    #[clap(visible_alias = "clear")]
-    Clean {
-        #[clap(help = "A filename of the script file.")]
-        file: PathBuf,
-    },
-    /// Shows a particular item from "info" by name.
-    Get {
-        #[clap(help = "An item name, e.g. cache_path.")]
-        name: String,
-        #[clap(help = "A filename of the script file.")]
-        file: PathBuf,
-    },
-}
 
 fn print_item(name: &str, value: &str) {
     println!("{:20} {}", format!("{}:", name), value);
@@ -142,10 +116,10 @@ pub fn command_clean(script_path: &Path) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn command_cache(cmd: Command) -> Result<(), Error> {
+pub fn command_cache(cmd: CacheCommand) -> Result<(), Error> {
     match cmd {
-        Command::Clean { file } => command_clean(&file),
-        Command::Get { name, file } => command_get(&name, &file),
-        Command::Info { file } => command_info(&file),
+        CacheCommand::Clean { file } => command_clean(&file),
+        CacheCommand::Get { name, file } => command_get(&name, &file),
+        CacheCommand::Info { file } => command_info(&file),
     }
 }
