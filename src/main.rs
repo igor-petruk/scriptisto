@@ -44,7 +44,7 @@ pub fn opt_from_args(args: &[String]) -> opt::Opt {
         }
     }
 
-    let opts = opt::Opt::from_iter(args.iter());
+    let opts = opt::Opt::parse_from(args.iter());
     debug!("Parsed command line options: {:#?}", opts);
 
     if opts.cmd.is_none() && opts.command.is_empty() {
