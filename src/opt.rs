@@ -100,16 +100,13 @@ impl FromStr for BuildMode {
 #[derive(Debug, Parser, PartialEq, Eq)]
 #[clap(
     name = "scriptisto",
-    about = "A 'shebang-interpreter' for compiled languages"
+    about = "A 'shebang-interpreter' for compiled languages",
+    args_conflicts_with_subcommands = true
 )]
 pub struct Opt {
-    /// A path to a script to run. If specified, first character must be "." or "/".
-    #[clap()]
-    pub script_src: Option<String>,
-
-    /// Additional arguments passed to a script.
-    #[clap()]
-    pub args: Vec<String>,
+    /// A path for to a script to run and additional arguments passed to this script. A script path must start with '.' or '/'.
+    #[clap(name = "SCRIPT")]
+    pub command: Vec<String>,
 
     #[clap(subcommand)]
     pub cmd: Option<Command>,

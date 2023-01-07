@@ -16,7 +16,7 @@
 extern crate include_dir;
 
 use clap::Parser;
-use failure::{format_err, Error};
+use failure::{format_err, Error, ResultExt};
 use log::debug;
 use std::path::{Path, PathBuf};
 use std::process::exit;
@@ -37,11 +37,9 @@ pub fn opt_from_args(args: &[String]) -> opt::Opt {
         let absolute_script_src = common::script_src_to_absolute(Path::new(&script_src));
         if let Ok(absolute_script_src) = absolute_script_src {
             if absolute_script_src.exists() {
-                return opt::Opt {
-                    script_src: Some(absolute_script_src.to_string_lossy().into()),
-                    args: args_iter.cloned().collect(),
-                    cmd: None,
-                };
+                let mut command: Vec<String> = vec![absolute_script_src.to_string_lossy().into()];
+                command.append(&mut args_iter.cloned().collect());
+                return opt::Opt { command, cmd: None };
             }
         }
     }
@@ -49,7 +47,7 @@ pub fn opt_from_args(args: &[String]) -> opt::Opt {
     let opts = opt::Opt::from_iter(args.iter());
     debug!("Parsed command line options: {:#?}", opts);
 
-    if opts.cmd.is_none() && opts.script_src.is_none() {
+    if opts.cmd.is_none() && opts.command.is_empty() {
         opt::display_help();
     };
     opts
@@ -60,7 +58,8 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
     let build_mode = opt::BuildMode::from_str(&build_mode_env.to_string_lossy())?;
     let show_logs = std::env::var_os("SCRIPTISTO_BUILD_LOGS").is_some();
 
-    let (cfg, script_cache_path) = build::perform(build_mode, script_path, show_logs)?;
+    let (cfg, script_cache_path) = build::perform(build_mode, script_path, show_logs)
+        .context(format!("Build failed for {:?}", script_path))?;
 
     let mut full_target_bin = script_cache_path;
     full_target_bin.push(PathBuf::from(cfg.target_bin));
@@ -107,11 +106,13 @@ fn main_err() -> Result<(), Error> {
 
     match opts.cmd {
         None => {
-            let script_src = opts.script_src.ok_or_else(|| {
+            let mut command_iter = opts.command.iter();
+            let script_src = command_iter.next().ok_or_else(|| {
                 format_err!("PROBABLY A BUG: script_src must be non-empty if no subcommand found.")
             })?;
             let script_src = common::script_src_to_absolute(Path::new(&script_src))?;
-            default_main(&script_src.to_string_lossy(), &opts.args)
+            let args: Vec<String> = command_iter.cloned().collect();
+            default_main(&script_src.to_string_lossy(), args.as_slice())
         }
         Some(opt::Command::Cache { cmd }) => cache::command_cache(cmd),
         Some(opt::Command::New { template_name }) => templates::command_new(template_name),

@@ -20,11 +20,14 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 pub fn script_src_to_absolute(script_src: &Path) -> Result<PathBuf, Error> {
-    let script_path = pathsearch::find_executable_in_path(&script_src);
-    match script_path {
-        Some(script_path) => Ok(script_path.canonicalize()?),
-        None => Ok(script_src.canonicalize()?),
+    let script_src_str = script_src.to_string_lossy();
+    if !script_src_str.starts_with(&['.', '/']) {
+        return Err(format_err!(
+            "Script path {:?} must start with '.' or '/'",
+            script_src
+        ));
     }
+    Ok(script_src.canonicalize()?)
 }
 
 pub fn build_cache_path(script_path: &Path) -> Result<PathBuf, Error> {

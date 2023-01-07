@@ -227,7 +227,7 @@ pub fn perform(
     ))?;
     debug!("Path: {:?}", script_path);
     debug!("Cache path: {:?}", script_cache_path);
-    let cfg = cfg::BuildSpec::new(&script_body)?;
+    let cfg = cfg::BuildSpec::new(&script_body).context("Cannot parse build spec")?;
 
     let mut metadata_path = script_cache_path.clone();
     metadata_path.push("scriptisto.metadata");
