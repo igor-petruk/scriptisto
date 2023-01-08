@@ -1,7 +1,7 @@
 # Scriptisto
 
 [![Latest Version](https://img.shields.io/crates/v/scriptisto.svg)](https://crates.io/crates/scriptisto)
-[![Build Status](https://cloud.drone.io/api/badges/igor-petruk/scriptisto/status.svg)](https://cloud.drone.io/igor-petruk/scriptisto)
+![Build Status](https://github.com/igor-petruk/scriptisto/actions/workflows/on-push.yml/badge.svg)
 ![Crates.io License](https://img.shields.io/crates/l/scriptisto)
 ![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/cargo/scriptisto)
 ![GitHub top language](https://img.shields.io/github/languages/top/igor-petruk/scriptisto)
