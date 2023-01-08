@@ -7,7 +7,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  clippy_check:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Update Ubuntu
