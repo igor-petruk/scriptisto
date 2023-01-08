@@ -102,7 +102,7 @@ fn get_custom_templates() -> Result<TemplateMap> {
             for template_file in dir_iter {
                 let template_file = template_file?;
                 let name = filename_to_template_name(template_file.path())?;
-                let filename = path_to_file_name(&template_file.path())?;
+                let filename = path_to_file_name(template_file.path())?;
                 let contents = std::fs::read_to_string(template_file.path())?;
                 templates.insert(
                     name,
@@ -245,7 +245,7 @@ pub fn command_template_import(path: &Path) -> Result<()> {
     // Not that copy was successful.
     if let Some(old_file) = old_file_to_remove {
         let path = filename_to_template_path(old_file)?;
-        std::fs::remove_file(&path)
+        std::fs::remove_file(path)
             .context("Failed to remove old template, template directory may be insonsistent!")?;
     }
     Ok(())
