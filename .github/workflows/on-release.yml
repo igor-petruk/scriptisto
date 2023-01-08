@@ -33,13 +33,13 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release        
+          args: --release --target x86_64-unknown-linux-musl
 
       - name: Display tree
-        run: tree -lah ./target
+        run: tree -lah ./target/x86_64-unknown-linux-musl
 
-      - run: ls -lah ./target/release/scriptisto
-      - run: ldd ./target/release/scriptisto
-      - run: strip ./target/release/scriptisto
-      - run: ls -lah ./target/release/scriptisto
+      - run: ls -lah ./target/x86_64-unknown-linux-musl/release/scriptisto
+      - run: ldd ./target/x86_64-unknown-linux-musl/release/scriptisto
+      - run: strip ./target/x86_64-unknown-linux-musl/release/scriptisto
+      - run: ls -lah ./target/x86_64-unknown-linux-musl/release/scriptisto
   
