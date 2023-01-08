@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::opt::CacheCommand;
-use failure::{Error, ResultExt};
+use anyhow::{anyhow, Context, Result};
 use number_prefix::NumberPrefix;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -40,7 +40,7 @@ fn get_dir_size_lossy(path: &Path) -> String {
     }
 }
 
-fn collect_info(script_path: &Path) -> Result<BTreeMap<String, String>, Error> {
+fn collect_info(script_path: &Path) -> Result<BTreeMap<String, String>> {
     let script_body = std::fs::read(script_path).context("Cannot read script file")?;
     let script_cache_path = common::build_cache_path(script_path).context(format!(
         "Cannot build cache path for script: {:?}",
@@ -70,14 +70,14 @@ fn collect_info(script_path: &Path) -> Result<BTreeMap<String, String>, Error> {
     Ok(items)
 }
 
-pub fn command_get(name: &str, script_path: &Path) -> Result<(), Error> {
+pub fn command_get(name: &str, script_path: &Path) -> Result<()> {
     let items = collect_info(script_path)?;
 
     if let Some(value) = items.get(name) {
         println!("{}", value);
         Ok(())
     } else {
-        Err(format_err!(
+        Err(anyhow!(
             "'{}' is not found. Available items: {:?}.",
             name,
             items.keys()
@@ -85,7 +85,7 @@ pub fn command_get(name: &str, script_path: &Path) -> Result<(), Error> {
     }
 }
 
-pub fn command_info(script_path: &Path) -> Result<(), Error> {
+pub fn command_info(script_path: &Path) -> Result<()> {
     let items = collect_info(script_path)?;
 
     for (k, v) in items.iter() {
@@ -95,7 +95,7 @@ pub fn command_info(script_path: &Path) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn command_clean(script_path: &Path) -> Result<(), Error> {
+pub fn command_clean(script_path: &Path) -> Result<()> {
     let items = collect_info(script_path)?;
     let cache_path = items.get("cache_path").expect("cache_path to exist");
 
@@ -116,7 +116,7 @@ pub fn command_clean(script_path: &Path) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn command_cache(cmd: CacheCommand) -> Result<(), Error> {
+pub fn command_cache(cmd: CacheCommand) -> Result<()> {
     match cmd {
         CacheCommand::Clean { file } => command_clean(&file),
         CacheCommand::Get { name, file } => command_get(&name, &file),

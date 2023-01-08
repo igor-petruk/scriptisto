@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use failure::{format_err, Error, ResultExt};
+use anyhow::{anyhow, Context, Result};
 use log::debug;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -23,22 +23,22 @@ use crate::opt;
 
 const SCRIPTISTO_SOURCE_VAR: &str = "SCRIPTISTO_SOURCE";
 
-fn docker_prefix(script_cache_path: &Path) -> Result<String, Error> {
+fn docker_prefix(script_cache_path: &Path) -> Result<String> {
     Ok(format!(
         "scriptisto-{}-{:x}",
         script_cache_path
             .file_name()
-            .ok_or_else(|| format_err!("BUG: invalid script_cache_path={:?}", script_cache_path))?
+            .ok_or_else(|| anyhow!("BUG: invalid script_cache_path={:?}", script_cache_path))?
             .to_string_lossy(),
         md5::compute(script_cache_path.to_string_lossy().as_bytes())
     ))
 }
 
-pub fn docker_image_name(script_cache_path: &Path) -> Result<String, Error> {
+pub fn docker_image_name(script_cache_path: &Path) -> Result<String> {
     docker_prefix(script_cache_path)
 }
 
-pub fn docker_volume_name(script_cache_path: &Path) -> Result<String, Error> {
+pub fn docker_volume_name(script_cache_path: &Path) -> Result<String> {
     let docker_prefix = docker_prefix(script_cache_path)?;
     Ok(format!("{}-src", docker_prefix))
 }
@@ -47,7 +47,7 @@ fn docker_create_volume(
     volume_name: &str,
     script_cache_path: &Path,
     stderr_mode: Stdio,
-) -> Result<(), Error> {
+) -> Result<()> {
     let mut build_vol_cmd = Command::new("docker");
     build_vol_cmd.arg("volume").arg("create").arg(volume_name);
     common::run_command(script_cache_path, build_vol_cmd, stderr_mode)?;
@@ -60,7 +60,7 @@ fn docker_volume_cmd(
     run_as_current_user: bool,
     cmd: &str,
     stderr_mode: Stdio,
-) -> Result<(), Error> {
+) -> Result<()> {
     let mut vol_cmd = Command::new("docker");
     vol_cmd.args(["run", "-t", "--rm"]);
     if run_as_current_user {
@@ -87,7 +87,7 @@ fn run_build_command<F>(
     first_run: bool,
     build_mode: opt::BuildMode,
     stderr_mode: F,
-) -> Result<(), Error>
+) -> Result<()>
 where
     F: Fn() -> Stdio,
 {
@@ -217,7 +217,7 @@ pub fn perform(
     build_mode: opt::BuildMode,
     script_path: &str,
     show_logs: bool,
-) -> Result<(cfg::BuildSpec, PathBuf), Error> {
+) -> Result<(cfg::BuildSpec, PathBuf)> {
     let script_path = Path::new(script_path);
 
     let script_body = std::fs::read(script_path).context("Cannot read script file")?;

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use clap::{Parser, Subcommand};
-use failure::format_err;
 use std::path::PathBuf;
 use std::str::FromStr;
 
@@ -80,16 +79,16 @@ impl Default for BuildMode {
 }
 
 impl FromStr for BuildMode {
-    type Err = failure::Error;
+    type Err = anyhow::Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> anyhow::Result<Self> {
         use BuildMode::*;
         Ok(match s {
             "" => Default,
             "source" => Source,
             "full" => Full,
             _ => {
-                return Err(format_err!(
+                return Err(anyhow::anyhow!(
                     "Incorrect build mode value. Available values: <unset>, source, full."
                 ))
             }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use failure::{Error, ResultExt};
+use anyhow::{Context, Result};
 use log::debug;
 use serde_derive::Deserialize;
 use std::cmp::min;
@@ -59,7 +59,7 @@ enum ParserState {
 }
 
 impl BuildSpec {
-    pub fn new(script_body: &[u8]) -> Result<Self, Error> {
+    pub fn new(script_body: &[u8]) -> Result<Self> {
         let mut script_src = Vec::new();
         let reader = BufReader::new(script_body);
 

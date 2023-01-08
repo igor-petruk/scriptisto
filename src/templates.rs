@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::opt::TemplatesCommand;
-use failure::{format_err, Error, ResultExt};
+use anyhow::{anyhow, Context, Result};
 use include_dir::Dir;
 use log::debug;
 use std::collections::BTreeMap;
@@ -39,15 +39,15 @@ struct Template {
 
 type TemplateMap = BTreeMap<String, Template>;
 
-fn path_to_file_name<T: AsRef<Path> + Debug>(p: T) -> Result<String, Error> {
+fn path_to_file_name<T: AsRef<Path> + Debug>(p: T) -> Result<String> {
     let p: PathBuf = p.as_ref().into();
     Ok(p.file_name()
-        .ok_or_else(|| format_err!("Cannot extract filename from {:?}", p))?
+        .ok_or_else(|| anyhow!("Cannot extract filename from {:?}", p))?
         .to_string_lossy()
         .to_string())
 }
 
-fn filename_to_template_name<T: AsRef<Path>>(p: T) -> Result<String, Error> {
+fn filename_to_template_name<T: AsRef<Path>>(p: T) -> Result<String> {
     let p: PathBuf = p.as_ref().into();
     let file_name = path_to_file_name(&p)?;
     Ok(p.file_stem()
@@ -56,7 +56,7 @@ fn filename_to_template_name<T: AsRef<Path>>(p: T) -> Result<String, Error> {
 }
 
 // Also creates the directory, this ok for now.
-fn filename_to_template_path<T: AsRef<Path> + Debug>(p: T) -> Result<PathBuf, Error> {
+fn filename_to_template_path<T: AsRef<Path> + Debug>(p: T) -> Result<PathBuf> {
     let file_name = path_to_file_name(&p)?;
     let templates_directory = get_templates_directory()?;
     std::fs::create_dir_all(&templates_directory)?;
@@ -65,7 +65,7 @@ fn filename_to_template_path<T: AsRef<Path> + Debug>(p: T) -> Result<PathBuf, Er
     Ok(template_path)
 }
 
-fn get_built_in_templates() -> Result<TemplateMap, Error> {
+fn get_built_in_templates() -> Result<TemplateMap> {
     let mut templates = TemplateMap::new();
     for file in TEMPLATES.files() {
         let path = PathBuf::from(file.path());
@@ -76,7 +76,7 @@ fn get_built_in_templates() -> Result<TemplateMap, Error> {
                 filename: path_to_file_name(path)?,
                 contents: file
                     .contents_utf8()
-                    .ok_or_else(|| format_err!("File {:?} is not UTF-8", file))?
+                    .ok_or_else(|| anyhow!("File {:?} is not UTF-8", file))?
                     .to_string(),
             },
         );
@@ -84,14 +84,13 @@ fn get_built_in_templates() -> Result<TemplateMap, Error> {
     Ok(templates)
 }
 
-fn get_templates_directory() -> Result<PathBuf, Error> {
-    let mut p =
-        dirs::config_dir().ok_or_else(|| format_err!("Cannot compute user's config dir"))?;
+fn get_templates_directory() -> Result<PathBuf> {
+    let mut p = dirs::config_dir().ok_or_else(|| anyhow!("Cannot compute user's config dir"))?;
     p.push("scriptisto/templates");
     Ok(p)
 }
 
-fn get_custom_templates() -> Result<TemplateMap, Error> {
+fn get_custom_templates() -> Result<TemplateMap> {
     let mut templates = TemplateMap::new();
 
     let templates_dir = get_templates_directory()?;
@@ -140,7 +139,7 @@ fn build_ascii_table() -> ascii_table::AsciiTable {
     table
 }
 
-fn get_templates() -> Result<TemplateMap, Error> {
+fn get_templates() -> Result<TemplateMap> {
     let mut templates = get_built_in_templates()?;
     templates.append(&mut get_custom_templates()?);
     Ok(templates)
@@ -179,7 +178,7 @@ fn template_not_found(name: &str, templates: &TemplateMap) -> ! {
     std::process::exit(1);
 }
 
-pub fn command_new(name: Option<String>) -> Result<(), Error> {
+pub fn command_new(name: Option<String>) -> Result<()> {
     let templates = get_templates()?;
 
     if let Some(name) = name {
@@ -196,7 +195,7 @@ pub fn command_new(name: Option<String>) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn write_template(filename: &str, content: &str) -> Result<(), Error> {
+pub fn write_template(filename: &str, content: &str) -> Result<()> {
     let template_path = filename_to_template_path(filename)?;
     let mut file = File::create(&template_path).context("Cannot create script file")?;
     let bytes = content.as_bytes();
@@ -206,7 +205,7 @@ pub fn write_template(filename: &str, content: &str) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn edit(initial_value: &str, filename: &str) -> Result<(), Error> {
+pub fn edit(initial_value: &str, filename: &str) -> Result<()> {
     let extension = filename_extension(filename);
     let editor = scrawl::editor::new()
         .extension(&extension)
@@ -223,7 +222,7 @@ pub fn edit(initial_value: &str, filename: &str) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn command_template_import(path: &Path) -> Result<(), Error> {
+pub fn command_template_import(path: &Path) -> Result<()> {
     let file_name = path_to_file_name(path)?;
     let templates = get_templates()?;
     let template_name = filename_to_template_name(path)?;
@@ -252,7 +251,7 @@ pub fn command_template_import(path: &Path) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn command_template_edit(template_name: String) -> Result<(), Error> {
+pub fn command_template_edit(template_name: String) -> Result<()> {
     let templates = get_templates()?;
 
     match templates.get(&template_name) {
@@ -263,7 +262,7 @@ pub fn command_template_edit(template_name: String) -> Result<(), Error> {
     }
 }
 
-pub fn command_template_rm(template_name: String) -> Result<(), Error> {
+pub fn command_template_rm(template_name: String) -> Result<()> {
     let templates = get_templates()?;
 
     match templates.get(&template_name) {
@@ -286,7 +285,7 @@ pub fn command_template_rm(template_name: String) -> Result<(), Error> {
     }
 }
 
-pub fn command_template(cmd: TemplatesCommand) -> Result<(), Error> {
+pub fn command_template(cmd: TemplatesCommand) -> Result<()> {
     let templates = get_templates()?;
 
     match cmd {

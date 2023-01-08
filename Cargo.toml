@@ -36,7 +36,7 @@ scriptisto = { path = "/usr/bin/scriptisto" }
 [dependencies]
 dirs = '4.0'
 exec = '0.3'
-failure = '0.1'
+anyhow = '1'
 include_dir = '0.7'
 log = '0.4'
 serde='1.0'
@@ -53,7 +53,7 @@ clap = { version = "4", features = ["derive"] }
 [build-dependencies]
 clap_mangen="0.2"
 clap = { version = "4", features = ["derive", "string"] }
-failure = '0.1'
+anyhow = '1'
 
 [dependencies.env_logger]
 default-features = false

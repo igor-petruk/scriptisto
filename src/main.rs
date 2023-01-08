@@ -15,8 +15,8 @@
 #[macro_use]
 extern crate include_dir;
 
+use anyhow::{anyhow, Context, Result};
 use clap::Parser;
-use failure::{format_err, Error, ResultExt};
 use log::debug;
 use std::path::{Path, PathBuf};
 use std::process::exit;
@@ -53,7 +53,7 @@ pub fn opt_from_args(args: &[String]) -> opt::Opt {
     opts
 }
 
-fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
+fn default_main(script_path: &str, args: &[String]) -> Result<()> {
     let build_mode_env = std::env::var_os("SCRIPTISTO_BUILD").unwrap_or_default();
     let build_mode = opt::BuildMode::from_str(&build_mode_env.to_string_lossy())?;
     let show_logs = std::env::var_os("SCRIPTISTO_BUILD_LOGS").is_some();
@@ -92,14 +92,14 @@ fn default_main(script_path: &str, args: &[String]) -> Result<(), Error> {
 
     let error = match exec::execvp(&binary, &target_argv) {
         exec::Error::Errno(e) => {
-            format_err!("Cannot execute target binary '{:?}': {:#?}", binary, e)
+            anyhow!("Cannot execute target binary '{:?}': {:#?}", binary, e)
         }
-        _ => format_err!("Cannot exec"),
+        _ => anyhow!("Cannot exec"),
     };
     Err(error)
 }
 
-fn main_err() -> Result<(), Error> {
+fn main_err() -> Result<()> {
     let args: Vec<String> = std::env::args().collect();
     let opts = opt_from_args(&args);
     debug!("Parsed options: {:?}", opts);
@@ -108,7 +108,7 @@ fn main_err() -> Result<(), Error> {
         None => {
             let mut command_iter = opts.command.iter();
             let script_src = command_iter.next().ok_or_else(|| {
-                format_err!("PROBABLY A BUG: script_src must be non-empty if no subcommand found.")
+                anyhow!("PROBABLY A BUG: script_src must be non-empty if no subcommand found.")
             })?;
             let script_src = common::script_src_to_absolute(Path::new(&script_src))?;
             let args: Vec<String> = command_iter.cloned().collect();
