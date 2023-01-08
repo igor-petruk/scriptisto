@@ -52,7 +52,8 @@ jobs:
 
       - name: Release
         uses: softprops/action-gh-release@v1
-        files: |
+        with:
+          files: |
             ./target/x86_64-unknown-linux-musl/release/scriptisto.bz2
             ./target/x86_64-unknown-linux-musl/debian/*.deb
             ./target/x86_64-unknown-linux-musl/release/rpmbuild/RPMS/x86_64/*.rpm
