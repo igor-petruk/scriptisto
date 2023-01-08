@@ -9,20 +9,20 @@
 //    content: |
 //     package = { name = "script", version = "0.1.0", edition = "2018"}
 //     [dependencies]
-//     structopt="*"
+//     clap={version="4", features=["derive"]}
 // scriptisto-end
 
-use structopt::StructOpt;
+use clap::Parser;
 
-#[derive(Debug, StructOpt)]
-#[structopt(name = "script", about = "A script.")]
+#[derive(Debug, Parser)]
+#[command(name = "script", about = "A script.")]
 struct Opt {
     /// Example input
-    #[structopt(short, long)]
-    input: Option<String>,
+    #[arg(short, long)]
+    input: Option<u32>,
 }
 
 fn main() {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     println!("Hello, Rust! Command line options: {:?}", opt);
 }
