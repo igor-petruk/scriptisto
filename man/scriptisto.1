@@ -1,0 +1,36 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH scriptisto 1  "scriptisto " 
+.SH NAME
+scriptisto \- A \*(Aqshebang\-interpreter\*(Aq for compiled languages
+.SH SYNOPSIS
+\fBscriptisto\fR [\fB\-h\fR|\fB\-\-help\fR]
+.TP
+\fBscriptisto\fR [\fISCRIPT\fR]
+.TP
+\fBscriptisto\fR [\fIsubcommands\fR]
+.SH DESCRIPTION
+A \*(Aqshebang\-interpreter\*(Aq for compiled languages
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help information
+.TP
+[\fISCRIPT\fR]
+A path for to a script to run and additional arguments passed to this script. A script path must start with \*(Aq.\*(Aq or \*(Aq/\*(Aq
+.SH SUBCOMMANDS
+.TP
+scriptisto\-cache(1)
+Build cache operations
+.TP
+scriptisto\-new(1)
+Prints an example starting script in a programming language of your choice
+.TP
+scriptisto\-template(1)
+Manage custom script templates
+.TP
+scriptisto\-build(1)
+Build a script without running
+.TP
+scriptisto\-help(1)
+Print this message or the help of the given subcommand(s)

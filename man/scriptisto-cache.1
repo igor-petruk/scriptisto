@@ -1,0 +1,26 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH scriptisto-cache 1  "scriptisto-cache " 
+.SH NAME
+scriptisto\-cache \- Build cache operations
+.SH SYNOPSIS
+\fBscriptisto\-cache\fR [\fB\-h\fR|\fB\-\-help\fR] <\fIsubcommands\fR>
+.SH DESCRIPTION
+Build cache operations
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help information
+.SH SUBCOMMANDS
+.TP
+scriptisto\-cache\-info(1)
+Shows information about the cache directory for the script
+.TP
+scriptisto\-cache\-clean(1)
+Clean the cache for a particular script. Removes the cache directory. Removes the Docker image/volume if they exist, but does not prune
+.TP
+scriptisto\-cache\-get(1)
+Shows a particular item from "info" by name
+.TP
+scriptisto\-cache\-help(1)
+Print this message or the help of the given subcommand(s)

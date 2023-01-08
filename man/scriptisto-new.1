@@ -1,0 +1,17 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH scriptisto-new 1  "scriptisto-new " 
+.SH NAME
+scriptisto\-new \- Prints an example starting script in a programming language of your choice
+.SH SYNOPSIS
+\fBscriptisto\-new\fR [\fB\-h\fR|\fB\-\-help\fR] [\fITEMPLATE_NAME\fR] 
+.SH DESCRIPTION
+Prints an example starting script in a programming language of your choice
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help information
+.TP
+[\fITEMPLATE_NAME\fR]
+If specified, determines a language. Example usage: "scriptisto new <template_name> | tee new\-script".
+If not specified, "new" lists available templates.

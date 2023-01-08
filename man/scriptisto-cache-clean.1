@@ -1,0 +1,16 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH scriptisto-cache-clean 1  "scriptisto-cache-clean " 
+.SH NAME
+scriptisto\-cache\-clean \- Clean the cache for a particular script. Removes the cache directory. Removes the Docker image/volume if they exist, but does not prune
+.SH SYNOPSIS
+\fBscriptisto\-cache\-clean\fR [\fB\-h\fR|\fB\-\-help\fR] <\fIFILE\fR> 
+.SH DESCRIPTION
+Clean the cache for a particular script. Removes the cache directory. Removes the Docker image/volume if they exist, but does not prune
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help information
+.TP
+<\fIFILE\fR>
+A filename of the script file.

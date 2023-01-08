@@ -1,0 +1,19 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH scriptisto-build 1  "scriptisto-build " 
+.SH NAME
+scriptisto\-build \- Build a script without running
+.SH SYNOPSIS
+\fBscriptisto\-build\fR [\fB\-b\fR|\fB\-\-build\-mode\fR] [\fB\-h\fR|\fB\-\-help\fR] <\fISCRIPT_SRC\fR> 
+.SH DESCRIPTION
+Build a script without running
+.SH OPTIONS
+.TP
+\fB\-b\fR, \fB\-\-build\-mode\fR=\fIBUILD_MODE\fR
+Build mode. If unset, only builds if necessary. "source" \- to rebuild each time. "full" to fully re\-fetch Docker image and run `build_once_cmd`
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help information
+.TP
+<\fISCRIPT_SRC\fR>
+A path to a script to build
