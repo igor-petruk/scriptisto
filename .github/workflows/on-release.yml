@@ -30,7 +30,7 @@ jobs:
           args: --release --target x86_64-unknown-linux-musl
 
       - name: Strip binary
-      - run: strip ./target/x86_64-unknown-linux-musl/release/scriptisto
+        run: strip ./target/x86_64-unknown-linux-musl/release/scriptisto
 
       - name: Make bz2
         run: bzip2 -f ./target/x86_64-unknown-linux-musl/release/scriptisto && sha256sum ./target/x86_64-unknown-linux-musl/release/scriptisto.bz2
