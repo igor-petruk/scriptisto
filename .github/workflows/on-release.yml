@@ -1,0 +1,42 @@
+name: Rust
+
+on:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  clippy_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update Ubuntu
+        run: apt-get update
+      
+      - name: Install Ubuntu tools
+        run: apt-get install -y musl-tools rpm
+      
+      - name: Install tools from crates
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-deb cargo-rpm
+      
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      
+      - name: Install musl toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          target: musl
+          override: true
+
+      - name: Build binary
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release        
+
+      - name: Display tree
+        run: tree -lah ./target
+  
