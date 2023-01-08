@@ -13,17 +13,44 @@ jobs:
   clippy_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - run: rustup component add clippy
-      - uses: actions-rs/clippy-check@v1
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: clippy
+      
+      - name: Clippy check
+        uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --release --verbose
-    - name: Run tests
-      run: cargo test --release --verbose
+  build-and-test:
+      runs-on: ubuntu-latest
+      steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: clippy
+      
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+          
+      - name: test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release
