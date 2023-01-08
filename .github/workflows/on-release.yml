@@ -44,6 +44,9 @@ jobs:
           command: install
           args: cargo-deb cargo-rpm
 
+      - name: Copy to standard location
+        run: mkdir -p ./target/release && cp ./target/x86_64-unknown-linux-musl/release/scriptisto ./target/release/scriptisto
+
       - name: Build RPM
         run: cargo rpm build --no-cargo-build --target x86_64-unknown-linux-musl && sha256sum ./target/x86_64-unknown-linux-musl/release/rpmbuild/RPMS/x86_64/*.rpm
       

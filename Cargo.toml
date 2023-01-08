@@ -58,3 +58,24 @@ failure = '0.1'
 [dependencies.env_logger]
 default-features = false
 version = '0'
+
+[package.metadata.deb]
+section = "utils"
+assets = [
+  ["target/release/scriptisto", "usr/bin/", "755"],
+  ["LICENSE", "usr/share/doc/scriptisto/", "644"],
+  ["README.md", "usr/share/doc/scriptisto/README", "644"],
+  ["man/scriptisto.1", "usr/share/man/man1/scriptisto.1", "644"],
+  ["man/scriptisto-build.1", "usr/share/man/man1/scriptisto-build.1", "644"],
+  ["man/scriptisto-cache.1", "usr/share/man/man1/scriptisto-cache.1", "644"],
+  ["man/scriptisto-cache-clean.1", "usr/share/man/man1/scriptisto-cache-clean.1", "644"],
+  ["man/scriptisto-cache-get.1", "usr/share/man/man1/scriptisto-cache-get.1", "644"],
+  ["man/scriptisto-cache-info.1", "usr/share/man/man1/scriptisto-cache-info.1", "644"],
+  ["man/scriptisto-new.1", "usr/share/man/man1/scriptisto-new.1", "644"],
+  ["man/scriptisto-template.1", "usr/share/man/man1/scriptisto-template.1", "644"],
+  ["man/scriptisto-template-edit.1", "usr/share/man/man1/scriptisto-template-edit.1", "644"],
+  ["man/scriptisto-template-import.1", "usr/share/man/man1/scriptisto-template-import.1", "644"],
+  ["man/scriptisto-template-ls.1", "usr/share/man/man1/scriptisto-template-ls.1", "644"],
+  ["man/scriptisto-template-rm.1", "usr/share/man/man1/scriptisto-template-rm.1", "644"],
+]
+
