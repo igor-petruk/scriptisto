@@ -2,6 +2,9 @@ name: On Release
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "testing-*.*.*"
 
 env:
   CARGO_TERM_COLOR: always
@@ -46,3 +49,10 @@ jobs:
 
       - name: Build DEB
         run: cargo deb --separate-debug-symbols --target x86_64-unknown-linux-musl
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        files: |
+            ./target/x86_64-unknown-linux-musl/release/scriptisto.bz2
+            ./target/x86_64-unknown-linux-musl/debian/*.deb
+            ./target/x86_64-unknown-linux-musl/release/rpmbuild/RPMS/x86_64/*.rpm
