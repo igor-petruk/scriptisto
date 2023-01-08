@@ -37,4 +37,9 @@ jobs:
 
       - name: Display tree
         run: tree -lah ./target
+
+      - run: ls -lah ./target/release/scriptisto
+      - run: ldd ./target/release/scriptisto
+      - run: strip ./target/release/scriptisto
+      - run: ls -lah ./target/release/scriptisto
   
