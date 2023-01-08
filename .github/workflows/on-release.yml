@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Ubuntu tools
-        run: apt-get install -y musl-tools rpm
+        run: sudo apt-get update && sudo apt-get install -y musl-tools rpm
       
       - name: Install tools from crates
         uses: actions-rs/cargo@v1
