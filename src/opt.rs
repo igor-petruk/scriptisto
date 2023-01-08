@@ -20,21 +20,21 @@ use std::str::FromStr;
 pub enum CacheCommand {
     /// Shows information about the cache directory for the script.
     Info {
-        #[arg(help = "A filename of the script file.")]
+        #[clap(help = "A filename of the script file.")]
         file: PathBuf,
     },
     /// Clean the cache for a particular script. Removes the cache directory. Removes the Docker image/volume if
     /// they exist, but does not prune.
-    #[command(visible_alias = "clear")]
+    #[clap(visible_alias = "clear")]
     Clean {
-        #[arg(help = "A filename of the script file.")]
+        #[clap(help = "A filename of the script file.")]
         file: PathBuf,
     },
     /// Shows a particular item from "info" by name.
     Get {
-        #[arg(help = "An item name, e.g. cache_path.")]
+        #[clap(help = "An item name, e.g. cache_path.")]
         name: String,
-        #[arg(help = "A filename of the script file.")]
+        #[clap(help = "A filename of the script file.")]
         file: PathBuf,
     },
 }
@@ -43,29 +43,29 @@ pub enum CacheCommand {
 pub enum TemplatesCommand {
     /// Imports a template from file.
     Import {
-        #[arg(
+        #[clap(
             help = "A filename of the script file. Extension will be stripped for the template name."
         )]
         file: PathBuf,
     },
     /// Opens an editor to modify an existing template, nice for quick edits.
     Edit {
-        #[arg(help = "A name of the template to edit")]
+        #[clap(help = "A name of the template to edit")]
         template_name: String,
     },
     /// Remove a custom template or reset it to the built-in contents.
-    #[command(name = "rm", visible_aliases = &["remove", "delete"])]
+    #[clap(name = "rm", visible_aliases = &["remove", "delete"])]
     Remove {
-        #[arg(help = "A name of the template to remove")]
+        #[clap(help = "A name of the template to remove")]
         template_name: String,
     },
     /// List all templates.
-    #[command(name = "ls", visible_alias = "list")]
+    #[clap(name = "ls", visible_alias = "list")]
     List {},
 }
 
 #[derive(Debug, PartialEq, Eq, Parser, Clone)]
-#[command(rename_all = "snake-case")]
+#[clap(rename_all = "snake-case")]
 pub enum BuildMode {
     Default,
     Source,
@@ -97,17 +97,17 @@ impl FromStr for BuildMode {
 }
 
 #[derive(Debug, Parser, PartialEq, Eq)]
-#[command(
+#[clap(
     name = "scriptisto",
     about = "A 'shebang-interpreter' for compiled languages",
     args_conflicts_with_subcommands = true
 )]
 pub struct Opt {
     /// A path for to a script to run and additional arguments passed to this script. A script path must start with '.' or '/'.
-    #[arg(value_name = "SCRIPT")]
+    #[clap(value_name = "SCRIPT")]
     pub command: Vec<String>,
 
-    #[command(subcommand)]
+    #[clap(subcommand)]
     pub cmd: Option<Command>,
 }
 
@@ -121,23 +121,23 @@ pub enum Command {
     /// Prints an example starting script in a programming language of your
     /// choice.
     New {
-        #[arg(
+        #[clap(
             help = "If specified, determines a language. Example usage: \"scriptisto new <template_name> | tee new-script\".\nIf not specified, \"new\" lists available templates."
         )]
         template_name: Option<String>,
     },
     /// Manage custom script templates.
     Template {
-        #[command(subcommand)]
+        #[clap(subcommand)]
         cmd: TemplatesCommand,
     },
     /// Build a script without running.
     Build {
         /// A path to a script to build.
-        #[arg()]
+        #[clap()]
         script_src: String,
         /// Build mode. If unset, only builds if necessary. "source" - to rebuild each time. "full" to fully re-fetch Docker image and run `build_once_cmd`.
-        #[arg(short, long)]
+        #[clap(short, long)]
         build_mode: Option<BuildMode>,
     },
 }
