@@ -52,7 +52,7 @@ clap = { version = "4", features = ["derive"] }
 
 [build-dependencies]
 clap_mangen="0.2"
-clap = { version = "4", features = ["derive"] }
+clap = { version = "4", features = ["derive", "string"] }
 failure = '0.1'
 
 [dependencies.env_logger]
