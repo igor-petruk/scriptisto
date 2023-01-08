@@ -42,13 +42,13 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: install
-          args: cargo-deb cargo-rpm
+          args: cargo-deb cargo-generate-rpm
 
       - name: Copy to standard location
         run: mkdir -p ./target/release && cp ./target/x86_64-unknown-linux-musl/release/scriptisto ./target/release/scriptisto
 
       - name: Build RPM
-        run: cargo rpm build --no-cargo-build --target x86_64-unknown-linux-musl && sha256sum ./target/x86_64-unknown-linux-musl/release/rpmbuild/RPMS/x86_64/*.rpm
+        run: cargo generate-rpm --target x86_64-unknown-linux-musl && sha256sum ./target/x86_64-unknown-linux-musl/generate-rpm/*.rpm
       
       - name: Build DEB
         run: cargo deb --no-build --separate-debug-symbols --target x86_64-unknown-linux-musl && sha256sum ./target/x86_64-unknown-linux-musl/debian/*.deb
@@ -60,4 +60,4 @@ jobs:
           files: |
             ./target/x86_64-unknown-linux-musl/release/scriptisto.bz2
             ./target/x86_64-unknown-linux-musl/debian/*.deb
-            ./target/x86_64-unknown-linux-musl/release/rpmbuild/RPMS/x86_64/*.rpm
+            ./target/x86_64-unknown-linux-musl/generate-rpm/*.rpm

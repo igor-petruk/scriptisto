@@ -79,3 +79,22 @@ assets = [
   ["man/scriptisto-template-rm.1", "usr/share/man/man1/scriptisto-template-rm.1", "644"],
 ]
 
+[package.metadata.generate-rpm]
+assets = [
+  {source="target/release/scriptisto", dest="/usr/bin/",mode= "755"},
+  {source="LICENSE", dest="/usr/share/doc/scriptisto/LICENSE", mode="644"},
+  {source="README.md", dest="/usr/share/doc/scriptisto/README.md", mode="644"},
+  {source="man/scriptisto.1", dest="/usr/share/man/man1/scriptisto.1", mode="644"},
+  {source="man/scriptisto-build.1", dest="/usr/share/man/man1/scriptisto-build.1", mode="644"},
+  {source="man/scriptisto-cache.1", dest="/usr/share/man/man1/scriptisto-cache.1", mode="644"},
+  {source="man/scriptisto-cache-clean.1", dest="/usr/share/man/man1/scriptisto-cache-clean.1", mode="644"},
+  {source="man/scriptisto-cache-get.1", dest="/usr/share/man/man1/scriptisto-cache-get.1", mode="644"},
+  {source="man/scriptisto-cache-info.1", dest="/usr/share/man/man1/scriptisto-cache-info.1", mode="644"},
+  {source="man/scriptisto-new.1", dest="/usr/share/man/man1/scriptisto-new.1", mode="644"},
+  {source="man/scriptisto-template.1", dest="/usr/share/man/man1/scriptisto-template.1", mode="644"},
+  {source="man/scriptisto-template-edit.1", dest="/usr/share/man/man1/scriptisto-template-edit.1", mode="644"},
+  {source="man/scriptisto-template-import.1", dest="/usr/share/man/man1/scriptisto-template-import.1", mode="644"},
+  {source="man/scriptisto-template-ls.1", dest="/usr/share/man/man1/scriptisto-template-ls.1", mode="644"},
+  {source="man/scriptisto-template-rm.1", dest="/usr/share/man/man1/scriptisto-template-rm.1", mode="644"},
+]
+
