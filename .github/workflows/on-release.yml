@@ -11,9 +11,22 @@ env:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        build: [linux, linux-arm, macos, win-msvc, win-gnu, win32-msvc]
+        include:
+        - build: linux
+          os: ubuntu-22.04
+          rust: stable
+          target: x86_64-unknown-linux-musl
+        - build: macos
+          os: macos-12
+          rust: stable
+          target: x86_64-apple-darwin
     steps:
       - name: Install Ubuntu tools
+        if: matrix.os == 'ubuntu-22.04'
         run: sudo apt-get update && sudo apt-get install -y musl-tools rpm
             
       - name: Checkout sources
@@ -22,42 +35,46 @@ jobs:
       - name: Install musl toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
-          target: x86_64-unknown-linux-musl
+          toolchain: ${{ matrix.rust }}
+          target: ${{ matrix.target }}
           override: true
 
       - name: Build binary
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --target x86_64-unknown-linux-musl
+          args: --release --target ${{ matrix.target }}
 
       - name: Strip binary
-        run: strip ./target/x86_64-unknown-linux-musl/release/scriptisto
+        run: strip ./target/${{ matrix.target }}/release/scriptisto
 
       - name: Make bz2
-        run: bzip2 -kf ./target/x86_64-unknown-linux-musl/release/scriptisto && sha256sum ./target/x86_64-unknown-linux-musl/release/scriptisto.bz2
+        run: bzip2 -kf ./target/${{ matrix.target }}/release/scriptisto && sha256sum ./target/${{ matrix.target }}/release/scriptisto-${{ matrix.target }}.bz2
   
       - name: Install tools from crates
+        if: matrix.build == 'linux'
         uses: actions-rs/cargo@v1
         with:
           command: install
           args: cargo-deb cargo-generate-rpm
 
       - name: Copy to standard location
+        if: matrix.build == 'linux'
         run: mkdir -p ./target/release && cp ./target/x86_64-unknown-linux-musl/release/scriptisto ./target/release/scriptisto
 
       - name: Build RPM
+        if: matrix.build == 'linux'
         run: cargo generate-rpm --target x86_64-unknown-linux-musl && sha256sum ./target/x86_64-unknown-linux-musl/generate-rpm/*.rpm
       
       - name: Build DEB
+        if: matrix.build == 'linux'
         run: cargo deb --no-build --separate-debug-symbols --target x86_64-unknown-linux-musl && sha256sum ./target/x86_64-unknown-linux-musl/debian/*.deb
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            ./target/x86_64-unknown-linux-musl/release/scriptisto.bz2
-            ./target/x86_64-unknown-linux-musl/debian/*.deb
-            ./target/x86_64-unknown-linux-musl/generate-rpm/*.rpm
+#      - name: Release
+#        uses: softprops/action-gh-release@v1
+#        if: startsWith(github.ref, 'refs/tags/')
+#        with:
+#          files: |
+#            ./target/x86_64-unknown-linux-musl/release/scriptisto.bz2
+#            ./target/x86_64-unknown-linux-musl/debian/*.deb
+#            ./target/x86_64-unknown-linux-musl/generate-rpm/*.rpm
