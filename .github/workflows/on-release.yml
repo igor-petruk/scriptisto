@@ -55,7 +55,8 @@ jobs:
       - name: Make bz2
         run: |
           bzip2 -kf ./target/${{ matrix.target }}/release/scriptisto
-          sha256sum ./target/${{ matrix.target }}/release/scriptisto.bz2
+          cp -v ./target/${{ matrix.target }}/release/scriptisto.bz2 ./target/${{ matrix.target }}/release/scriptisto-${{ matrix.target }}.bz2
+          sha256sum ./target/${{ matrix.target }}/release/scriptisto-${{ matrix.target }}.bz2
   
       - name: Install tools from crates
         if: matrix.build == 'linux'
@@ -82,11 +83,20 @@ jobs:
           cargo deb --no-build --separate-debug-symbols --target ${{ matrix.target }}
           sha256sum ./target/${{ matrix.target }}/debian/*.deb
 
-#      - name: Release
-#        uses: softprops/action-gh-release@v1
-#        if: startsWith(github.ref, 'refs/tags/')
-#        with:
-#          files: |
-#            ./target/x86_64-unknown-linux-musl/release/scriptisto.bz2
-#            ./target/x86_64-unknown-linux-musl/debian/*.deb
-#            ./target/x86_64-unknown-linux-musl/generate-rpm/*.rpm
+      - name: Release Linux
+        uses: softprops/action-gh-release@v1
+        if: matrix.build == 'linux' && startsWith(github.ref, 'refs/tags/')
+        with:
+          append_body: true
+          files: |
+            ./target/${{ matrix.target }}/release/scriptisto-${{ matrix.target }}.bz2
+            ./target/${{ matrix.target }}/debian/*.deb
+            ./target/${{ matrix.target }}/generate-rpm/*.rpm
+            
+      - name: Release Mac OS X
+        uses: softprops/action-gh-release@v1
+        if: matrix.build == 'macos' && startsWith(github.ref, 'refs/tags/')
+        with:
+          append_body: true
+          files: |
+            ./target/${{ matrix.target }}/release/scriptisto-${{ matrix.target }}.bz2
