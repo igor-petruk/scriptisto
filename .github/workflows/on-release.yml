@@ -49,7 +49,9 @@ jobs:
         run: strip ./target/${{ matrix.target }}/release/scriptisto
 
       - name: Make bz2
-        run: bzip2 -kf ./target/${{ matrix.target }}/release/scriptisto && sha256sum ./target/${{ matrix.target }}/release/scriptisto-${{ matrix.target }}.bz2
+        run: |
+          bzip2 -kf ./target/${{ matrix.target }}/release/scriptisto
+          sha256sum ./target/${{ matrix.target }}/release/scriptisto.bz2
   
       - name: Install tools from crates
         if: matrix.build == 'linux'
@@ -60,15 +62,21 @@ jobs:
 
       - name: Copy to standard location
         if: matrix.build == 'linux'
-        run: mkdir -p ./target/release && cp ./target/x86_64-unknown-linux-musl/release/scriptisto ./target/release/scriptisto
+        run: |
+          mkdir -p ./target/release
+          cp ./target/${{ matrix.target }}/release/scriptisto ./target/release/scriptisto
 
       - name: Build RPM
         if: matrix.build == 'linux'
-        run: cargo generate-rpm --target x86_64-unknown-linux-musl && sha256sum ./target/x86_64-unknown-linux-musl/generate-rpm/*.rpm
+        run: |
+          cargo generate-rpm --target ${{ matrix.target }}
+          sha256sum ./target/${{ matrix.target }}/generate-rpm/*.rpm
       
       - name: Build DEB
         if: matrix.build == 'linux'
-        run: cargo deb --no-build --separate-debug-symbols --target x86_64-unknown-linux-musl && sha256sum ./target/x86_64-unknown-linux-musl/debian/*.deb
+        run: |
+          cargo deb --no-build --separate-debug-symbols --target ${{ matrix.target }}
+          sha256sum ./target/${{ matrix.target }}/debian/*.deb
 
 #      - name: Release
 #        uses: softprops/action-gh-release@v1
