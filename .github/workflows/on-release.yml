@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - "testing-*.*.*"
+      - "v*.*.*"
 
 env:
   CARGO_TERM_COLOR: always
