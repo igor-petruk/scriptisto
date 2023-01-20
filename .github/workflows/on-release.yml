@@ -54,9 +54,8 @@ jobs:
 
       - name: Make bz2
         run: |
-          bzip2 -kf ./target/${{ matrix.target }}/release/scriptisto
-          cp -v ./target/${{ matrix.target }}/release/scriptisto.bz2 ./target/${{ matrix.target }}/release/scriptisto-${{ matrix.target }}.bz2
-          sha256sum ./target/${{ matrix.target }}/release/scriptisto-${{ matrix.target }}.bz2
+          tar -cjvf ./scriptisto-${{ matrix.target }}.tar.bz2 --directory=./target/${{ matrix.target }}/release scriptisto
+          sha256sum ./scriptisto-${{ matrix.target }}.tar.bz2
   
       - name: Install tools from crates
         if: matrix.build == 'linux'
@@ -89,7 +88,7 @@ jobs:
         with:
           append_body: true
           files: |
-            ./target/${{ matrix.target }}/release/scriptisto-${{ matrix.target }}.bz2
+            ./scriptisto-${{ matrix.target }}.tar.bz2
             ./target/${{ matrix.target }}/debian/*.deb
             ./target/${{ matrix.target }}/generate-rpm/*.rpm
             
@@ -99,4 +98,4 @@ jobs:
         with:
           append_body: true
           files: |
-            ./target/${{ matrix.target }}/release/scriptisto-${{ matrix.target }}.bz2
+            ./scriptisto-${{ matrix.target }}.tar.bz2
