@@ -473,7 +473,7 @@ checksum = "8fbfda0f5cf9c3c8a8058bc9c48b8c1bcdaec976086ad389ae0df6e98b302dd2"
 
 [[package]]
 name = "scriptisto"
-version = "2.1.0"
+version = "2.1.1"
 dependencies = [
  "anyhow",
  "clap",
