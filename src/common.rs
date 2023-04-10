@@ -76,7 +76,10 @@ pub fn run_command(
 
     debug!("Running command: {:?}", cmd);
 
-    let out = cmd.output().context(format!("Cannot run: {:?}", cmd))?;
+    let out = cmd.output().context(format!(
+        "Cannot run cmd={:?} in current_directory={:?}",
+        cmd, current_directory
+    ))?;
 
     let stderr = String::from_utf8_lossy(&out.stderr);
     let stdout = String::from_utf8_lossy(&out.stdout);

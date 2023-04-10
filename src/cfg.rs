@@ -32,6 +32,10 @@ pub struct BuildSpec {
     pub files: Vec<File>,
     #[serde(default)]
     pub docker_build: Option<DockerBuild>,
+    #[serde(default)]
+    pub extra_src_paths: Vec<String>, // paths to directory/file, no wildcards supported
+    #[serde(default)]
+    pub build_in_script_dir: bool, // use script directory as working directory of build, not the cache directory (non-Docker build only)
 }
 
 fn default_target_bin() -> String {
