@@ -122,21 +122,29 @@ fn get_custom_templates() -> Result<TemplateMap> {
     Ok(templates)
 }
 
-fn build_ascii_table() -> ascii_table::AsciiTable {
-    let mut table = ascii_table::AsciiTable::default();
-    table
-        .column(0)
-        .set_header("Template Name")
-        .set_align(ascii_table::Align::Left);
-    table
-        .column(1)
-        .set_header("Custom")
-        .set_align(ascii_table::Align::Left);
-    table
-        .column(2)
-        .set_header("Extension")
-        .set_align(ascii_table::Align::Left);
-    table
+fn print_ascii_table(rows: &[Vec<String>]) {
+    use prettytable::{format, row, Cell, Row, Table};
+
+    let mut table = Table::new();
+    let format = format::FormatBuilder::new()
+        .column_separator('|')
+        .borders('|')
+        .separators(
+            &[format::LinePosition::Top, format::LinePosition::Bottom],
+            format::LineSeparator::new('-', '+', '+', '+'),
+        )
+        .separators(
+            &[format::LinePosition::Title],
+            format::LineSeparator::new('=', '+', '+', '+'),
+        )
+        .padding(1, 1)
+        .build();
+    table.set_format(format);
+    table.set_titles(row!["Template Name", "Custom", "Extension"]);
+    for table_row in rows {
+        table.add_row(Row::new(table_row.iter().map(|s| Cell::new(s)).collect()));
+    }
+    table.printstd();
 }
 
 fn get_templates() -> Result<TemplateMap> {
@@ -168,7 +176,7 @@ fn print_templates(templates: &TemplateMap) {
         })
         .collect();
 
-    build_ascii_table().print(table);
+    print_ascii_table(&table);
 }
 
 fn template_not_found(name: &str, templates: &TemplateMap) -> ! {
