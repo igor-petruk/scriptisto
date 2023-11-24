@@ -51,6 +51,12 @@ Scriptisto is available as a prebuilt statically-linked standalone binary or dis
 
 Please proceed to the [Installation](https://github.com/igor-petruk/scriptisto/wiki/Installation) for instructions.
 
+On NetBSD, a precompiled binary is available from the official repositories. To install it, simply run:
+
+```shell
+pkgin install scriptisto
+```
+
 ## Documentation
 
 Proceed to our [Wiki](https://github.com/igor-petruk/scriptisto/wiki).
