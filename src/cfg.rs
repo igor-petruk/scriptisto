@@ -75,14 +75,13 @@ impl BuildSpec {
         for (line_num, line) in reader.lines().enumerate() {
             let mut line = line.context(format!("Cannot parse script line: {}", line_num))?;
             script_src.push(line.clone());
-            let old_state = state.clone();
-            state = match old_state {
+            state = match state {
                 ScriptSource => {
                     let sb_start = line.find("scriptisto-begin");
                     if let Some(pos) = sb_start {
                         ConfigSource { prefix_len: pos }
                     } else {
-                        old_state
+                        state
                     }
                 }
                 ConfigSource { prefix_len } => {
@@ -91,7 +90,7 @@ impl BuildSpec {
                         ScriptSource
                     } else {
                         cfg_src.push(line);
-                        old_state
+                        state
                     }
                 }
             };
