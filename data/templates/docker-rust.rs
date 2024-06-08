@@ -2,8 +2,8 @@
 
 // scriptisto-begin
 // script_src: src/main.rs
-// build_cmd: cargo build --release
-// target_bin: ./target/x86_64-unknown-linux-musl/release/script
+// build_cmd: "cargo build --release && cp ./target/*musl*/release/script ./target/script"
+// target_bin: ./target/script
 // docker_build:
 //    dockerfile: FROM clux/muslrust
 //    src_mount_dir: /volume
