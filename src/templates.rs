@@ -216,7 +216,6 @@ pub fn write_template(filename: &str, content: &str) -> Result<()> {
 
 pub fn edit(initial_value: &str, filename: &str) -> Result<()> {
     if let Some(new_content) = editor::edit(filename, initial_value)? {
-        println!("NEW");
         write_template(filename, &new_content)?;
     } else {
         println!("No changes were made during editing.");
