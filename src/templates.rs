@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::editor;
 use crate::opt::TemplatesCommand;
 use anyhow::{anyhow, Context, Result};
 use include_dir::Dir;
@@ -214,19 +215,12 @@ pub fn write_template(filename: &str, content: &str) -> Result<()> {
 }
 
 pub fn edit(initial_value: &str, filename: &str) -> Result<()> {
-    let extension = filename_extension(filename);
-    let editor = scrawl::editor::new()
-        .extension(&extension)
-        .contents(initial_value);
-
-    let new_value = editor.open().unwrap();
-
-    if new_value.trim() == initial_value.trim() {
-        println!("No changes were made during editing.");
+    if let Some(new_content) = editor::edit(filename, initial_value)? {
+        println!("NEW");
+        write_template(filename, &new_content)?;
     } else {
-        write_template(filename, &new_value)?;
+        println!("No changes were made during editing.");
     }
-
     Ok(())
 }
 

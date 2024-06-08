@@ -27,6 +27,7 @@ mod build;
 mod cache;
 mod cfg;
 mod common;
+mod editor;
 mod opt;
 mod templates;
 
