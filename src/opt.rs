@@ -64,18 +64,13 @@ pub enum TemplatesCommand {
     List {},
 }
 
-#[derive(Debug, PartialEq, Eq, Parser, Clone)]
+#[derive(Debug, PartialEq, Eq, Parser, Clone, Default)]
 #[clap(rename_all = "snake-case")]
 pub enum BuildMode {
+    #[default]
     Default,
     Source,
     Full,
-}
-
-impl Default for BuildMode {
-    fn default() -> Self {
-        BuildMode::Default
-    }
 }
 
 impl FromStr for BuildMode {
