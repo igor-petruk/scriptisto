@@ -66,7 +66,7 @@ fn docker_volume_cmd(
     let mut vol_cmd = Command::new("docker");
     vol_cmd.args(["run", "-t", "--rm"]);
     if run_as_current_user {
-        vol_cmd.args(["-u", &format!("{}", users::get_current_uid())]);
+        vol_cmd.args(["-u", &format!("{}", uzers::get_current_uid())]);
     }
     vol_cmd.args([
         "-v",
